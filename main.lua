@@ -2,14 +2,15 @@ _G.Classes = {} local Classes = Classes
 _G.Libs = {} local Libs = Libs
 
 -- negative sx and sy values do default behavior; positive values are pixel measurements
+-- ox and oy values between 0 and 1 will be treated as a ratio to image size (anchor point)
 _G.drawImage = function(drawable, x, y, r, sx, sy, ox, oy, kx, ky)
     love.graphics.draw(
         drawable,
         math.floor(x), math.floor(y), r,
         sx and (sx < 0 and -sx or 1 / drawable:getWidth() * sx),
         sy and (sy < 0 and -sy or 1 / drawable:getHeight() * sy),
-        ox and (ox <= 1 and drawable:getWidth() * ox),
-        oy and (oy <= 1 and drawable:getHeight() * oy),
+        ox and (ox <= 1 and drawable:getWidth() * ox or ox),
+        oy and (oy <= 1 and drawable:getHeight() * oy or oy),
         kx, ky   
     )
 end
@@ -27,6 +28,7 @@ end
 function testUpdate(dt)
     testLogo:update(dt)
     if Mouse.clicked then
+        print("wow")
         testLogo:pulse()
     end
 end
