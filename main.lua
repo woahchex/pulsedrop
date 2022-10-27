@@ -17,30 +17,35 @@ end
 
 ---- test functions
 function testLoad()
-    testScene = Classes.EditorScene.new()
-    testLogo = Classes.gui_Logo.new()
+    testScene = Classes.GameScene.new()
 end
 
 function testDraw()
-    testLogo:draw()
+
 end
 
 function testUpdate(dt)
-    testLogo:update(dt)
-    if Mouse.clicked then
-        print("wow")
-        testLogo:pulse()
-    end
+
 end
 
 
 function love.load()
     local classes = {
         "GameScene", "EditorScene",
-        "editor/Field",
+        "editor/Field", "game/Field",
+        "game/song",
         "gui/Logo",
     }
     local libs = {"Mouse", "Asset"}
+
+
+    for _, lib in ipairs(libs) do
+        formatName = lib:gsub("/", "_")
+        Libs[formatName] = require("libs/" .. lib)
+        if Libs[formatName].__global then
+            _G[formatName] = Libs[formatName]
+        end
+    end
 
     local formatName = nil
     for _, class in ipairs(classes) do
@@ -48,14 +53,6 @@ function love.load()
         Classes[formatName] = require("classes/"..class)
         if Classes[formatName].__global then
             _G[formatName] = Classes[formatName]
-        end
-    end
-
-    for _, lib in ipairs(libs) do
-        formatName = lib:gsub("/", "_")
-        Libs[formatName] = require("libs/" .. lib)
-        if Libs[formatName].__global then
-            _G[formatName] = Libs[formatName]
         end
     end
 

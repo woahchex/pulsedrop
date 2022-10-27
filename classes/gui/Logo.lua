@@ -1,16 +1,16 @@
 local Logo = {}
 Logo.prototype = {
     scale = 2;
-    position = {x = 50, y = 50}, -- entire logo position
-    p = {x = 0, y = 0}, -- data for P
-    d = {x = 0, y = 48.6},  -- data for D
-    u = {x = 44.2, y = 30.4},  -- etc.
-    l = {x = 76.2, y = 2.4},
-    s = {x = 90.2, y = 30.4},
-    e = {x = 118.2, y = 30.4},
-    r = {x = 42.2, y = 66.4},
-    o = {x = 68.2, y = 66.4},
-    p2 ={x = 102.2, y = 66.4},
+    position =  {x = 50, y = 50}, -- entire logo position
+    p =         {x = 0, y = 0}, -- data for P
+    d =         {x = 0, y = 48.6},  -- data for D
+    u =         {x = 44.2, y = 30.4},  -- etc.
+    l =         {x = 76.2, y = 2.4},
+    s =         {x = 90.2, y = 30.4},
+    e =         {x = 118.2, y = 30.4},
+    r =         {x = 42.2, y = 66.4},
+    o =         {x = 68.2, y = 66.4},
+    p2 =        {x = 102.2, y = 66.4},
     underline = {x = 42.2, y = 64.4},
 
     oScale = 1,

@@ -27,7 +27,7 @@ local skinPath = "assets/skins/default"
 local mainPath = "assets/constant"
 function Asset.loadImage(path)
     local pathData = split(path, "/")
-    Asset.image[pathData[#pathData]:gsub(".png","")] = love.graphics.newImage(path:gsub("skin", skinPath):gsub("mainpath", mainPath), nil) -- need this nil because i guess gsub returns indices also and fucks everything up
+    Asset.image[pathData[#pathData]:gsub(".png","")] = love.graphics.newImage(path:gsub("skinpath", skinPath):gsub("mainpath", mainPath), nil) -- need this nil because i guess gsub returns indices also and fucks everything up
 end
 
 --[[function Asset.loadSound(path)
