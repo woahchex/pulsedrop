@@ -4,10 +4,10 @@ _G.Libs = {} local Libs = Libs
 
 -- negative sx and sy values do default behavior; positive values are pixel measurements
 -- ox and oy values between 0 and 1 will be treated as a ratio to image size (anchor point)
-_G.drawImage = function(drawable, x, y, r, sx, sy, ox, oy, kx, ky)
+_G.drawImage = function(drawable, x, y, r, sx, sy, ox, oy, kx, ky, ignoreSnap)
     love.graphics.draw(
         drawable,
-        math.floor(x), math.floor(y), r,
+        ignoreSnap and x or math.floor(x), ignoreSnap and y or math.floor(y), r,
         sx and (sx < 0 and -sx or 1 / drawable:getWidth() * sx),
         sy and (sy < 0 and -sy or 1 / drawable:getHeight() * sy),
         ox and (ox <= 1 and drawable:getWidth() * ox or ox),
@@ -23,7 +23,7 @@ function testLoad()
 end
 
 function testDraw()
-    testLogo:draw()
+
 end
 
 function testUpdate(dt)

@@ -7,6 +7,9 @@ local Scene Scene = {
         song = nil,
         notes = {},
 
+        -- internally used
+        timesLoaded = {},
+
         --- methods
         destroy = function(self)
             Scene.activeScenes[self.id] = nil
@@ -14,12 +17,26 @@ local Scene Scene = {
 
         draw = function(self)
             self.field.position = love.graphics.getWidth()/2
-            self.field:draw()
+            self.field:draw(self.song.currentTime)
+
+            
         end,
 
         update = function(self, dt)
             if self.song then
                 self.song:update(dt)
+            end
+
+            local currentSec = math.ceil(self.song.currentTime)
+
+            -- send notes from this second to the Field for rendering
+            for i = currentSec, currentSec+9 do
+                if not self.timesLoaded[i] and self.notes[i] then
+                    self.timesLoaded[i] = true 
+                    for _, note in pairs(self.notes[i]) do
+                        self.field:addNote(note)
+                    end
+                end
             end
         end,
 

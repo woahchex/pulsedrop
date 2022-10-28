@@ -5,23 +5,50 @@ local Song = {
     __index = {
         -- instance vars
         currentTime = 0,
+
+        startBpm = 120,
+        startOffset = 0,
+
+        bpm = 0,
+        offset = 0,
+
         notes = {
             -- TEST VALUES
-            {"MOVE", 0.5},
-            {"MOVE", 0.6},
+            -- Note type, note time, approach rate, pieceAssociation, fieldIndex (traceback)
+            -- [grid]
+            --[[{"MOVE", 1, 4, 1,},
+            {"MOVE", 2, 4, 1,},
+            {"DROP", 3, 2, 1, {
+                {true, true, true, true, true, true, false, true, true, true},
+                {true, true, true, true, true, true, false, true, true, true},
+                {true, true, true, true, true, true, false, true, true, true},
+                {true, true, true, true, true, true, false, true, true, true},
+            }},]]
+            
         },
 
         -- methods
         update = function(self, dt)
             -- update instance var with song time here
+            -- temp:
+            self.currentTime = self.currentTime + dt
         end
     }
 }
+
+for i = 1, 10000 do
+    local tab = {true,true,true,true,true,true,true,true,true,true}
+    tab[math.random(1,10)]=false
+    table.insert(Song.__index.notes, {"DROP", i*0.5, 2, 1, 0, {tab,tab,tab,tab}})
+end
 
 -- Constructor
 function Song.new()
     local newSong = setmetatable({}, Song)
     
+
+    newSong.bpm = newSong.startBpm
+    newSong.offset = newSong.startOffset
     return newSong
 end
 
