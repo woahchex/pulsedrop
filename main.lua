@@ -19,14 +19,15 @@ end
 ---- test functions
 function testLoad()
     testScene = Classes.GameScene.new()
+    testLogo = Classes.gui_Logo.new()
 end
 
 function testDraw()
-
+    testLogo:draw()
 end
 
 function testUpdate(dt)
-
+    
 end
 
 
