@@ -1,6 +1,7 @@
 local asset = Asset
 local draw = drawImage
 
+-- The field class handles rendering the play field. Also might work with player controls. Who knows!
 local Field = {    
     -- prototype
     __index = {
