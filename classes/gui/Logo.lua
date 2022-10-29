@@ -25,6 +25,8 @@ function Logo.prototype:draw()
     asset = asset or Asset
     local s = self.scale
     local px, py = self.position.x, self.position.y
+    love.graphics.push()
+    love.graphics.setColor(1,1,1,1)
     draw(asset.image.letter_d, (self.d.x+px)*s, (self.d.y+py+self.pOffset/10)*s, 0, 40*s, 60*s)
     draw(asset.image.letter_p, (self.p.x+px)*s, (self.p.y+py+self.pOffset)*s, 0, 40*s, 60*s)
     draw(asset.image.letter_u, (self.u.x+px)*s, (self.u.y+py+self.pOffset/4)*s, 0, 28*s, 32*s)
@@ -36,7 +38,7 @@ function Logo.prototype:draw()
     draw(asset.image.letter_p_arrow, (self.p2.x+px-6)*s, (self.p2.y+py+self.arrowOffset)*s, 0, 38*s, 58*s)
     draw(asset.image.logo_underline, (self.underline.x+px)*s, (self.underline.y+py)*s, 0, 102*s, 44*s)
     draw(asset.image.letter_o, (self.o.x+px+16)*s, (self.o.y+py+16)*s, 0, 32*s*self.oScale, 32*s*self.oScale, 0.5, 0.5)
-
+    love.graphics.pop()
 end
 
 function Logo.prototype:update(dt)

@@ -21,11 +21,11 @@ local Field = {
 
             local hitLinePos = width/10*5
             local noteArea = height - hitLinePos
-
+            gpush()
+            love.graphics.setColor(1,1,1,1)
             draw(asset.image.field_overlay, self.position + ox, 0 + oy, 0, width, height, 0.5, 0)
-            local c = 0
+            gpop()
             for i, note in pairs(self.notesToRender) do
-                c = c + 1
                 local approachRate = note[3]
                 local noteTime = note[2]
                 local timeToHit = noteTime - currentTime
@@ -65,9 +65,9 @@ local Field = {
                     self.notesToRender[i] = nil
                 end                
             end
-            print(c)
+            gpush()
             draw(asset.image.hit_line, self.position - width/2+0.5 + ox, hitLinePos + oy, 0, width, width/10, nil, nil, nil, nil, true)
-
+            gpop()
         end,
 
         addNote = function(self, note)
