@@ -77,7 +77,7 @@ local function loadAssets()
     end        
 end
 
--- Constructor for 
+-- Constructor for Logo
 function Logo.new()
     local newField = setmetatable({}, Logo)
     
@@ -86,10 +86,5 @@ function Logo.new()
 
     return newField
 end
-
-
-
-
-
 
 return Logo

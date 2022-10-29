@@ -27,6 +27,8 @@ local Scene Scene = {
                 self.song:update(dt)
             end
 
+            self.field:update(dt)
+
             local currentSec = math.ceil(self.song.currentTime)
 
             -- send notes from this second to the Field for rendering

@@ -36,10 +36,10 @@ local Song = {
     }
 }
 
-for i = 1, 10000 do
+for i = 1, 100000 do
     local tab = {true,true,true,true,true,true,true,true,true,true}
     tab[math.random(1,10)]=false
-    table.insert(Song.__index.notes, {"DROP", i*0.5, 2, 1, 0, {tab,tab,tab,tab}})
+    table.insert(Song.__index.notes, {math.random(2)==1 and "DROP" or "MOVE", i*0.5, 2, i%7+1, 0, {tab,tab,tab,tab}})
 end
 
 -- Constructor

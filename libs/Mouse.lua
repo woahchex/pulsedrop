@@ -9,10 +9,10 @@ local Mouse = {
 
     __global = true
 }
-
+local mouse = love.mouse
 
 function Mouse.update(dt)
-    local x, y = love.mouse.getPosition()
+    local x, y = mouse.getPosition()
     Mouse.speed = math.sqrt((Mouse.x - x)^2 + (Mouse.y - y)^2)
     Mouse.x = x
     Mouse.y = y
@@ -23,7 +23,7 @@ function Mouse.postUpdate(dt)
     Mouse.clicked = false
     Mouse.doubleClicked = false
 
-    Mouse.dragging = love.mouse.isDown(1)
+    Mouse.dragging = mouse.isDown(1)
     if Mouse.dragging then
         Mouse.dragTime = Mouse.dragTime + dt
     else

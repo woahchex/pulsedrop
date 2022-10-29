@@ -1,6 +1,6 @@
 local asset = Asset
 local draw = drawImage
-local gpush, gpop = love.graphics.push, love.graphics.pop
+local gpush, gpop, setColor = love.graphics.push, love.graphics.pop, love.graphics.setColor
 
 local SIZERATIO = 2.5
 
@@ -11,8 +11,19 @@ local Field = {
         -- instance vars
         position = 250,
         notesToRender = {},
+        transparencyTracker = {},
 
         -- methods
+        update = function(self, dt)
+            -- transparency gradient thing
+            for i, e in pairs(self.transparencyTracker) do
+                if e > 0.3 then
+                    self.transparencyTracker[i] = e - 5*dt
+                end
+            end
+        end,
+
+
         draw = function(self, currentTime, ox, oy)
             
             local height = love.graphics.getHeight()
@@ -36,36 +47,52 @@ local Field = {
                 local actualPosition = relativePosition * noteArea + hitLinePos
 
                 if relativePosition <= 1 then
-                    gpush()
-                    draw(asset.image.move_line, self.position - width/2 + ox, actualPosition + oy, 0, width, width/10, nil, nil, nil, nil, true)
-                    gpop()
+                    if not self.transparencyTracker[i] and relativePosition < 0 then
+                        self.transparencyTracker[i] = .9                  
+                    end
+                    
+                    local transparency = self.transparencyTracker[i] or 1
+
                     if note[1] == "MOVE" then
                         gpush()
+                        setColor( Tetris.getColor(note[4], transparency) )
+                        draw(asset.image.move_line, self.position - width/2 + ox, actualPosition + oy, 0, width, width/10, nil, nil, nil, nil, true)
                         draw(asset.image.move_line_trail, self.position - width/2 + ox, actualPosition + oy, 0, width, width/10, nil, nil, nil, nil, true)
                         gpop()
                     elseif note[1] == "DROP" then
+                        gpush()
+                        setColor(1,1,1,transparency)
+                        draw(asset.image.move_line, self.position - width/2 + ox, actualPosition + oy, 0, width, width/10, nil, nil, nil, nil, true)
+                        gpop()
                         local grid = note[6]
                         local tileSize = width/10
                         gpush()
+                        setColor( Tetris.getColor( note[4], transparency ) )
                         for y = 1, #grid do
                             for x = 1, #grid[y] do
                                 if grid[y][x] then
                                     draw(asset.image.tile, self.position-width/2+0.5+tileSize*(x-1)+ox, actualPosition+tileSize*(y-1)+oy, 0, tileSize, tileSize, nil, nil, nil, nil, true)
+                                    if x == 3 or x == 4 or x == 8 or x == 7 then
+                                        draw(asset.image.tile_overlay, self.position-width/2+0.5+tileSize*(x-1)+ox, actualPosition+tileSize*(y-1)+oy, 0, tileSize, tileSize, nil, nil, nil, nil, true)
+                                    end
                                 end
                             end
                         end
                         gpop(); gpush()
+                        setColor(1,1,1, transparency)
                         draw(asset.image.move_line, self.position - width/2+0.5 + ox, actualPosition + width/10*#grid + oy, 0, width, width/10, nil, nil, nil, nil, true)
                         gpop()
                     end
                 end
 
                 -- removing from buffer if it's expired
-                if relativePosition <= 0 then
+                if relativePosition <= -0.5 then
                     self.notesToRender[i] = nil
+                    self.transparencyTracker[i] = nil
                 end                
             end
             gpush()
+            setColor(1,1,1)
             draw(asset.image.hit_line, self.position - width/2+0.5 + ox, hitLinePos + oy, 0, width, width/10, nil, nil, nil, nil, true)
             gpop()
         end,
@@ -89,7 +116,8 @@ local function loadAssets()
         "skinpath/hit_line.png",
         "skinpath/move_line.png",
         "skinpath/move_line_trail.png",
-        "skinpath/tile.png"
+        "skinpath/tile.png",
+        "skinpath/tile_overlay.png"
     }) do
         asset.loadImage(path)
     end        

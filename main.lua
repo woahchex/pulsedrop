@@ -38,7 +38,7 @@ function love.load()
         "game/song",
         "gui/Logo",
     }
-    local libs = {"Mouse", "Asset"}
+    local libs = {"Mouse", "Keyboard", "Gamepad", "Asset", "Tetris"}
 
 
     for _, lib in ipairs(libs) do
