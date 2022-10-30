@@ -1,4 +1,7 @@
 -- hello :)
+
+math.randomseed(os.time())
+
 _G.Classes = {} local Classes = Classes
 _G.Libs = {} local Libs = Libs
 
@@ -35,7 +38,8 @@ function love.load()
     local classes = {
         "GameScene", "EditorScene",
         "editor/Field", "game/Field",
-        "game/song",
+        "game/Note", "game/Piece",
+        "game/Song",
         "gui/Logo",
     }
     local libs = {"Mouse", "Keyboard", "Gamepad", "Asset", "Tetris"}
@@ -83,6 +87,7 @@ end
 
 
 function love.update(dt)
+    --dt=dt/3
     local postUpdateList = {}
     -- Make sure every class which has an update function updates
     for name, lib in pairs(Libs) do

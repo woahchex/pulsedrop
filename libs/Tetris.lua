@@ -53,8 +53,54 @@ local Tetris = {
             {false, true,  true,  false},
             {false, true,  true,  false},
             {false, false, false, false}
-        }
+        },
     },
+
+    displayMatrix = {
+        { -- I
+            {false, false, false, false},
+            {true,  true,  true,  true },
+            {false, false, false, false},
+            {false, false, false, false}
+        },
+        { -- J
+            {false, false, false, false},
+            {true,  false, false, false},
+            {true,  true,  true , false},
+            {false, false, false, false}
+        },
+        { -- L
+            {false, false, false, false},
+            {false, false, true,  false},
+            {true,  true,  true,  false},
+            {false, false, false, false}
+        },
+        { -- S
+            {false, false, false, false},
+            {false, true , true , false},
+            {true,  true,  false, false},
+            {false, false, false, false}
+        },
+        { -- Z
+            {false, false, false, false},
+            {true,  true , false, false},
+            {false, true,  true,  false},
+            {false, false, false, false}
+        },
+        { -- T
+            {false, false, false, false},
+            {false, true,  false, false},
+            {true,  true,  true, false},
+            {false, false, false, false}
+        },
+        { -- O
+            {false, false, false, false},
+            {true,  true,  false, false},
+            {true,  true,  false, false},
+            {false, false, false, false}
+        },
+    },
+    
     
     __global = true
 }
