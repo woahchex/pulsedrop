@@ -23,6 +23,9 @@ end
 function testLoad()
     testScene = Classes.GameScene.new()
     testLogo = Classes.gui_Logo.new()
+
+    local contents, size = love.filesystem.read("assets/design/exampleMap.chex")
+    Classes.game_Song.compile(contents)
 end
 
 function testDraw()
@@ -87,6 +90,7 @@ end
 
 
 function love.update(dt)
+    if dt > .5 then return end
     --dt=dt/3
     local postUpdateList = {}
     -- Make sure every class which has an update function updates

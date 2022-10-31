@@ -175,7 +175,7 @@ local function sortNotes(song)
             until not song.notes[j] or song.notes[j]:getType() == "DROP"
 
             if song.notes[j] then
-                note:setPieceId(song.notes[j]:getPieceId())
+                note:setPieceId(song.notes[j]:getAltPieceId())
             end
         end
     end
@@ -224,7 +224,7 @@ end
 function Scene.draw()
     for _, scene in pairs(Scene.activeScenes) do
         scene:draw()
-    end
+    end  
 end
 
 -- Update method for the CLASS. Handles updates for all active scenes.

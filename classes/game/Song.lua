@@ -95,10 +95,10 @@ for i = 1, 10000 do
     local selectedPiece = math.random(1,7)
 
     table.insert(Song.__index.notes, Classes.game_Note.new(
-        math.random(2)==1 and "DROP" or "DROP",
-        i * .5,
-        1.5,
-        selectedPiece,
+        math.random(4)==1 and "DROP" or math.random(1,3)>1 and "MOVE" or "MOVE",
+        i * 0.54545454545,
+        2,
+        math.random(1,5) == 1 and math.random(1,7) or selectedPiece,
         0,
         deepCopy(tabOptions[selectedPiece]),
         selectedPiece -- hold piece
@@ -115,5 +115,186 @@ function Song.new()
     newSong.offset = newSong.startOffset
     return newSong
 end
+
+
+----- MAPFILE READING
+
+local function trim(s)
+    return (s:gsub("^%s*(.-)%s*$", "%1"))
+end
+-- from PiL2 20.4
+
+local function trimSplit(input, d)
+    d = d or "%s"
+    local out={}
+    for str in string.gmatch(input, "([^"..d.."]+)") do
+            table.insert(out, tonumber(str) or trim(str))
+    end
+    return out
+end
+
+local function generateParameterTable( text )
+    local out = {}
+
+    local p = 0
+    local s = 1
+    repeat
+        s = p+1
+        while p < text:len() and text:sub(p, p) ~= "[" do
+            p = p + 1
+        end
+        local parameterName = trim(text:sub(s, p-1))
+        
+        s = p + 1
+        while p < text:len() and text:sub(p, p) ~= "]" do
+            p = p + 1
+        end
+        local parameterValue = trim(text:sub(s, p-1))
+        
+        parameterValue = tonumber(parameterValue) or parameterValue
+        
+        out[parameterName] = parameterValue
+
+    until p >= text:len()
+
+    return out
+end
+
+local function getParameters( text, keyword )
+    local p = 0
+    local s = 0
+    while text:sub(p, p+keyword:len()) ~= keyword .. ":" do
+        p = p + 1
+        if p >= text:len() then return false end
+    end
+    s = p+keyword:len()+1
+
+    while text:sub(p, p) ~= ";" do
+        p = p + 1
+        if p >= text:len() then return false end
+    end
+
+    return generateParameterTable( text:sub(s, p-1) )
+end
+
+local function generateMatrix( text )
+    local out = {}
+
+    local p = 0
+    local s = 1
+    repeat
+        while p < text:len() and text:sub(p, p) ~= "[" do
+            p = p + 1
+        end
+        s = p + 1
+
+        while p < text:len() and text:sub(p, p) ~= "]" do
+            p = p + 1
+        end
+
+        local lineText = text:sub(s, p-1)
+        local line = {}
+
+        for i = 1, lineText:len() do
+            line[#line+1] = (lineText:sub(i, i) ~= " ")
+        end
+
+        out[#out+1] = line
+
+    until p >= text:len()
+
+    return out
+end
+
+local function getEvents( text )
+    local p = 0
+    local s = 0
+    local keyword = "EVENTS"
+    while text:sub(p, p+keyword:len()) ~= keyword .. ":" do
+        p = p + 1
+        if p >= text:len() then return false end
+    end
+    s = p+keyword:len()+1
+
+    while text:sub(p, p+2) ~= "END" do
+        p = p + 1
+        if p >= text:len() then return false end
+    end
+
+    local eventStringList = trimSplit(text:sub(s, p-1), ";")
+
+    local out = {}
+
+    for _, v in pairs(eventStringList) do
+        local n = trimSplit(v)
+        if #n>0 then
+            out[#out+1] = n
+        end
+    end
+
+    return out
+end
+
+local tetrisTranslation = {I = 1, J = 2, L = 3, S = 4, Z = 5, T = 6, O = 7}
+local function getNotes( text )
+    local noteClass = Classes.game_Note
+    local p = 0
+    local s = 0
+    local keyword = "NOTES"
+    while text:sub(p, p+keyword:len()) ~= keyword .. ":" do
+        p = p + 1
+        if p >= text:len() then return false end
+    end
+    s = p+keyword:len()+1
+
+    while text:sub(p, p+2) ~= "END" do
+        p = p + 1
+        if p >= text:len() then return false end
+    end
+
+    local noteStringList = trimSplit(text:sub(s, p-1), ";")
+    local out = {}
+
+    for i, v in ipairs(noteStringList) do
+        if v:len() ~= 0 then
+            local noteVals = trimSplit( v, "," )
+
+            -- we initialize the note with its approach multiplier, then generate the rate with events
+                if noteVals[2] == "D" then
+                -- drop note
+                local grid = generateMatrix(noteVals[6])
+                out[#out+1] = noteClass.new("DROP", noteVals[1], noteVals[3], tetrisTranslation[noteVals[4]], nil, grid, tetrisTranslation[noteVals[5]])
+            else
+                -- move note
+                -- color is set later
+                out[#out+1] = noteClass.new("MOVE", noteVals[1], noteVals[3], 0, nil, nil, 0)
+            end
+
+        end
+    end
+
+    return out
+end
+
+function Song.compile( text )
+    
+    local generalParameters = getParameters(text, "GENERAL")
+    local metaParameters = getParameters(text, "META")
+    local difficultyParameters = getParameters(text, "DIFFICULTY")
+
+    local notes = getNotes( text )
+    local events = getEvents( text )
+
+
+
+    for k, v in pairs(events) do
+        print(#v)
+    end
+end
+
+
+
+
+
 
 return Song

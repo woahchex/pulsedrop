@@ -7,7 +7,7 @@ local Note = {
         [5] = 0,      -- alt tetris piece ID (1-7)
         [6] = -1,     -- index in rendering field
         [7] = false,  -- active note flag
-        [8] = {},     -- grid (for DROPs only)
+        [8] = nil,     -- grid (for DROPs only)
         [9] = false,  -- active piece state (first = false, second = true)
         [10] = false, -- completed flag
         [11] = false, -- used flag
@@ -99,6 +99,22 @@ local Note = {
 
         getUsed = function(self)
             return self[11]
+        end,
+
+        
+        toString = function(self)
+            if self:getType()=="MOVE" then
+                return "move@"..self:getTime().."s  AR"..self:getApproachRate()
+            else
+                local grid = ""
+                for y, t in ipairs(self:getGrid()) do
+                    grid = grid .. "\n\t"
+                    for x, v in ipairs(t) do
+                        grid = grid .. (v and "O" or " ")
+                    end
+                end
+                return "drop@"..self:getTime().."s  AR"..self:getApproachRate().."  GR"..grid
+            end
         end
     },
     __global = true
@@ -113,7 +129,7 @@ function Note.new(type, time, approachRate, pieceId, fieldIndex, grid, secondPie
     newNote:setPieceId(pieceId or 1)
     newNote:setAltPieceId(secondPieceId or 0)
     newNote:setFieldIndex(fieldIndex or -1)
-    newNote:setGrid(grid or {})
+    newNote:setGrid(grid or nil)
 
     return newNote
 end

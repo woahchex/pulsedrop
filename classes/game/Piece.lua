@@ -69,6 +69,7 @@ local Piece = {
             if not self.held then
                 self.held = true
                 self.position = 4
+                self.renderTileOffset = -0.5
             end
         end,
 

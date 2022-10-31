@@ -24,7 +24,7 @@ local Field = {
 
             -- transparency gradient thing
             for i, e in pairs(self.transparencyTracker) do
-                if e > 0.3 then
+                if e > 0.2 or (e > 0 and self.notesToRender[i]:getUsed()) then
                     self.transparencyTracker[i] = e - 5*dt
                 end
             end
@@ -84,7 +84,6 @@ local Field = {
                         gpush()
                             setColor(1,1,1,transparency)
 
-                        draw(asset.image.drop_border, math.floor(self.position - width/2 + ox), actualPosition + oy, 0, width, width/10, nil, nil, nil, nil, true)
                         gpop()
                         local grid = note:getGrid()
                         
@@ -111,13 +110,14 @@ local Field = {
                             setColor(1,1,1, transparency)
                             
                         end
+                        draw(asset.image.drop_border, math.floor(self.position - width/2 + ox), actualPosition + oy, 0, width, width/10, nil, nil, nil, nil, true)
                         draw(asset.image.drop_border, math.floor(self.position - width/2+0.5 + ox), actualPosition + width/10*#grid + oy, 0, width, width/10, nil, nil, nil, nil, true)
                         draw(asset.image.move_line_trail, math.floor(self.position - width/2+0.5 + ox), actualPosition + width/10*#grid + oy, 0, width, width/5, nil, nil, nil, nil, true)
                         gpop()
 
 
                         -- draw the ghost piece on the active note
-                        if note:getActive() and activePiece.overlap then
+                        if note:getActive() and activePiece and activePiece.overlap then
                             local pieceGrid = activePiece:getMatrix()
                             gpush()
                             setColor(1,1,1,1)
@@ -166,6 +166,14 @@ local Field = {
                 end                
             end
 
+            gpush()
+            setColor(1,1,1)
+            draw(asset.image.hit_line, self.position - width/2+0.5 + ox, hitLinePos + oy, 0, width, width/10, nil, nil, nil, nil, true)
+            draw(asset.image.line_border_blur, self.position - width/2+0.5 + ox, hitLinePos + oy, 0, width, width/2.5, 0, 1, nil, nil, true)
+            draw(asset.image.field_border_left, self.position - width/2+0.5 + ox + 1, 0 + oy, 0, width/10, height, 1, 0, nil, nil, true)
+            draw(asset.image.field_border_right, self.position + width/2+0.5 + ox - 1, 0 + oy, 0, width/10, height, 0, 0, nil, nil, true)
+            gpop()
+
             if activePiece then
                 
                 gpush()
@@ -182,10 +190,7 @@ local Field = {
                 gpop()
             end
 
-            gpush()
-            setColor(1,1,1)
-            draw(asset.image.hit_line, self.position - width/2+0.5 + ox, hitLinePos + oy, 0, width, width/10, nil, nil, nil, nil, true)
-            gpop()
+            
         end,
 
         addNote = function(self, note)
@@ -210,7 +215,10 @@ local function loadAssets()
         "skinpath/tile.png",
         "skinpath/tile_overlay.png",
         "skinpath/tile_ghost.png",
-        "skinpath/drop_border.png"
+        "skinpath/drop_border.png",
+        "skinpath/line_border_blur.png",
+        "skinpath/field_border_left.png",
+        "skinpath/field_border_right.png"
     }) do
         asset.loadImage(path)
     end        
