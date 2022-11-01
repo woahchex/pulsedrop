@@ -9,6 +9,7 @@ local Song = {
         startBpm = 120,
         startOffset = 0,
         timingStrictness = 1,
+        startAR = 2,
 
         getTimingStrictness = function(self, type)
             return type == "PERFECT" and 0.05 * self.timingStrictness or
@@ -32,6 +33,9 @@ local Song = {
                 {true, true, true, true, true, true, false, true, true, true},
             }},]]
             
+        },
+        events = {
+
         },
 
         -- methods
@@ -108,11 +112,41 @@ for i = 1, 10000 do
 end
 
 -- Constructor
-function Song.new()
+function Song.new(notes, events, parameters)
+    notes = notes or nil
+    events = events or {}
+    parameters = parameters or {general = {}, meta = {}, difficulty = {}}
+
     local newSong = setmetatable({}, Song)
     
-    newSong.bpm = newSong.startBpm
-    newSong.offset = newSong.startOffset
+    newSong.bpm = parameters.general.BPM or 120
+    newSong.offset = parameters.general.StartOffset or 0
+    newSong.notes = notes
+    newSong.events = events
+    newSong.timingStrictness = parameters.general.TimingDifficulty or 1
+    newSong.approachRate = parameters.difficulty.ApproachRate or 2
+
+    -- precalculate the approach rate of each note
+    for i, note in ipairs(notes) do
+        note:setApproachRate(note:getARMultiplier() * newSong.approachRate)
+    end
+
+    for i, event in ipairs(events) do
+        if type(event[4])=="number" then
+            local stopTime = events[i+1] and events[i+1][1] or math.huge
+
+            for j, note in ipairs(notes) do
+                if note:getTime() >= event[1] and note:getTime() < stopTime then
+                    note:setApproachRate(note:getARMultiplier() * event[4])
+                elseif note:getTime() >= stopTime then
+                    break
+                end
+            end
+        end
+    end
+
+    
+
     return newSong
 end
 
@@ -163,11 +197,11 @@ end
 local function getParameters( text, keyword )
     local p = 0
     local s = 0
-    while text:sub(p, p+keyword:len()) ~= keyword .. ":" do
+    while text:sub(p, p+keyword:len()+1) ~= "@" .. keyword .. ":" do
         p = p + 1
         if p >= text:len() then return false end
     end
-    s = p+keyword:len()+1
+    s = p+keyword:len()+2
 
     while text:sub(p, p) ~= ";" do
         p = p + 1
@@ -210,11 +244,11 @@ local function getEvents( text )
     local p = 0
     local s = 0
     local keyword = "EVENTS"
-    while text:sub(p, p+keyword:len()) ~= keyword .. ":" do
+    while text:sub(p, p+keyword:len()+1) ~= "@" .. keyword .. ":" do
         p = p + 1
         if p >= text:len() then return false end
     end
-    s = p+keyword:len()+1
+    s = p+keyword:len()+2
 
     while text:sub(p, p+2) ~= "END" do
         p = p + 1
@@ -226,7 +260,7 @@ local function getEvents( text )
     local out = {}
 
     for _, v in pairs(eventStringList) do
-        local n = trimSplit(v)
+        local n = trimSplit(v, ",")
         if #n>0 then
             out[#out+1] = n
         end
@@ -241,11 +275,12 @@ local function getNotes( text )
     local p = 0
     local s = 0
     local keyword = "NOTES"
-    while text:sub(p, p+keyword:len()) ~= keyword .. ":" do
+    local term = "@" .. keyword .. ":"
+    while text:sub(p, p+keyword:len()+1) ~= term do
         p = p + 1
         if p >= text:len() then return false end
     end
-    s = p+keyword:len()+1
+    s = p+keyword:len()+2
 
     while text:sub(p, p+2) ~= "END" do
         p = p + 1
@@ -285,11 +320,13 @@ function Song.compile( text )
     local notes = getNotes( text )
     local events = getEvents( text )
 
+    local songParameters = {
+        general = generalParameters,
+        meta = metaParameters,
+        difficulty = difficultyParameters
+    }
 
-
-    for k, v in pairs(events) do
-        print(#v)
-    end
+    return Song.new(notes, events, songParameters)
 end
 
 

@@ -23,9 +23,6 @@ end
 function testLoad()
     testScene = Classes.GameScene.new()
     testLogo = Classes.gui_Logo.new()
-
-    local contents, size = love.filesystem.read("assets/design/exampleMap.chex")
-    Classes.game_Song.compile(contents)
 end
 
 function testDraw()

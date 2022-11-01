@@ -11,6 +11,7 @@ local Note = {
         [9] = false,  -- active piece state (first = false, second = true)
         [10] = false, -- completed flag
         [11] = false, -- used flag
+        [12] = 1,     -- approach multiplier 
 
         -- methods
         setType = function(self, type)
@@ -57,6 +58,10 @@ local Note = {
             self[11] = val
         end,
 
+        setARMultiplier = function(self, val)
+            self[12] = val
+        end,
+
         getType = function(self)
             return self[1]
         end,
@@ -101,6 +106,9 @@ local Note = {
             return self[11]
         end,
 
+        getARMultiplier = function(self)
+            return self[12]
+        end,
         
         toString = function(self)
             if self:getType()=="MOVE" then
@@ -120,12 +128,12 @@ local Note = {
     __global = true
 }
 
-function Note.new(type, time, approachRate, pieceId, fieldIndex, grid, secondPieceId)
+function Note.new(type, time, arMultiplier, pieceId, fieldIndex, grid, secondPieceId)
     local newNote = setmetatable({}, Note)
 
     newNote:setType(type or 0)
     newNote:setTime(time or 0)
-    newNote:setApproachRate(approachRate or 2)
+    newNote:setARMultiplier(arMultiplier or 1)
     newNote:setPieceId(pieceId or 1)
     newNote:setAltPieceId(secondPieceId or 0)
     newNote:setFieldIndex(fieldIndex or -1)

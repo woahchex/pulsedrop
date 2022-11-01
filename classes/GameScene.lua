@@ -210,7 +210,7 @@ function Scene.new()
 
     -- load other stuff
     newScene.field = Classes.game_Field.new()
-    newScene.song = Classes.game_Song.new() -- TEMP
+    newScene.song = Classes.game_Song.compile( love.filesystem.read("assets/design/exampleMap.chex") )
 
     newScene.notes = sortNotes(newScene.song)
 

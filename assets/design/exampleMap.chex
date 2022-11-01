@@ -1,12 +1,14 @@
-GENERAL:
-    SongFilename [test]
-    BGFilename [test]
+@BASIC: SongTitle<||>SongBPM<||>PreviewTime<||>SongPath<||>BGPath
+
+@GENERAL:
+    SongPath [test]
+    BGPath [test]
     StartOffset [0.00]
     BPM [120.0]
     PreviewTime [30.0]
     SkinFilename [default];
 
-META:
+@META:
     Title  []
     Artist []
     Mapper []
@@ -14,9 +16,9 @@ META:
     MapID []
     DifficultyId [];
 
-DIFFICULTY:
+@DIFFICULTY:
     TimingDifficulty []
-    ApproachRate []
+    ApproachRate [4]
     HPDrain [];
 
 -- format:
@@ -27,7 +29,7 @@ DIFFICULTY:
 --- hold piece type (I/J/L/S/Z/T/O)
 --- grid (formatted);
 
-NOTES:
+@NOTES:
     0.500, D, 1.0, T, T,
         [OOO   OOOO]
         [OOOO OOOOO] 
@@ -49,7 +51,8 @@ NOTES:
 --- newApproachRate (1.0 - 9.0/na),
 --- newBPM (xxx.xxx/na);
 
-EVENTS:
-    5.000, on, na, 2.0, na;
+@EVENTS:
+    0.501, on, na, 1.0, na;
+    1.1, off, na, 2.0, na;
     END
 
