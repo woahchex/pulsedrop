@@ -74,7 +74,8 @@ local Field = {
                         if note:getCompleted() then
                             setColor( 1, 1, 1, transparency )
                         else
-                            local color = {Tetris.getColor(note:getPieceId())}
+                            local pid = note:getPieceId()
+                            local color = {Tetris.getColor(pid)}
                             setColor( color[1] + 0.3, color[2] + 0.3, color[3] + 0.3, transparency )
                         end
                         draw(asset.image.move_line, math.floor(self.position - width/2 + ox), actualPosition + oy, 0, width, width/10, nil, nil, nil, nil, true)

@@ -4,7 +4,7 @@ local Note = {
         [2] = 0,      -- note timestamp
         [3] = 2,      -- approach rate
         [4] = 1,      -- tetris piece ID (1-7)
-        [5] = 0,      -- alt tetris piece ID (1-7)
+        [5] = 1,      -- alt tetris piece ID (1-7)
         [6] = -1,     -- index in rendering field
         [7] = false,  -- active note flag
         [8] = nil,     -- grid (for DROPs only)
@@ -135,7 +135,7 @@ function Note.new(type, time, arMultiplier, pieceId, fieldIndex, grid, secondPie
     newNote:setTime(time or 0)
     newNote:setARMultiplier(arMultiplier or 1)
     newNote:setPieceId(pieceId or 1)
-    newNote:setAltPieceId(secondPieceId or 0)
+    newNote:setAltPieceId(secondPieceId or 1)
     newNote:setFieldIndex(fieldIndex or -1)
     newNote:setGrid(grid or nil)
 
