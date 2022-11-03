@@ -52,6 +52,14 @@ local Piece = {
         matrix2 = {},
         id = 0,
         id2 = 0,
+        leftHoldTime = 0,
+        rightHoldTime = 0,
+        direction = 1,
+
+        das = 0.3,
+        arr = 0.05,
+        arrTimer = 0,
+
         overlap = nil,
         held = false,
         renderTileOffset = 0.5,
@@ -97,6 +105,27 @@ local Piece = {
             end
         end,
 
+        holdLeft = function(self, val, dt)
+            self.leftHoldTime = val and self.leftHoldTime + dt or 0
+        end,
+
+        holdRight = function(self, val, dt)
+            self.rightHoldTime = val and self.rightHoldTime + dt or 0
+        end,
+
+        frameLeft = function(self)
+            self.position = self.position - 1
+            self.rightHoldTime = 0
+            self.arrTimer = self.arr
+            self.direction = -1
+        end,
+
+        frameRight = function(self)
+            self.position = self.position + 1
+            self.leftHoldTime = 0
+            self.arrTimer = self.arr
+            self.direction = 1
+        end,
 
         updateCollision = function(self, note)
             -- first update vertical collision
@@ -172,6 +201,16 @@ local Piece = {
         update = function(self, dt)
             self.renderTileOffset = self.renderTileOffset * (1 - 10*dt)
             self.dropDebounce = self.dropDebounce - dt
+
+            --print(self.leftHoldTime, self.rightHoldTime)
+
+            if self.leftHoldTime > self.das or self.rightHoldTime > self.das then                
+                self.arrTimer = self.arrTimer + dt
+                while self.arrTimer >= self.arr do
+                    self.arrTimer = self.arrTimer - self.arr
+                    self.position = self.position + self.direction
+                end
+            end
         end
     }
 }
@@ -179,7 +218,7 @@ local Piece = {
 
 
 local tetris
-function Piece.new(id, id2)
+function Piece.new(id, id2, das, arr)
     tetris = tetris or Tetris
 
     local newPiece = setmetatable({}, Piece)
@@ -188,6 +227,8 @@ function Piece.new(id, id2)
     newPiece.matrix2 = id2 and deepCopy(tetris.matrix[id2]) or deepCopy(tetris.matrix[id])
     newPiece.id = id
     newPiece.id2 = id2 or id
+    newPiece.das = das
+    newPiece.arr = arr
 
     return newPiece
 end

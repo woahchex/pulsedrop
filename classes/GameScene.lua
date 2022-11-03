@@ -52,6 +52,9 @@ function Scene.prototype:update(dt)
     local rotateCCWFrame = Keyboard.justPressed["left"]
     local rotateCWFrame = Keyboard.justPressed["right"]
     local rotate180Frame = Keyboard.justPressed["up"]
+    
+    local leftHold = Keyboard.isDown("a")
+    local rightHold = Keyboard.isDown("d")
 
     local legalMovement = leftFrame or rightFrame or rotateCWFrame or rotateCCWFrame or rotate180Frame
     local anyMovement = legalMovement or dropFrame or holdFrame
@@ -61,10 +64,10 @@ function Scene.prototype:update(dt)
             self.activePiece:hold()
         end
         if leftFrame then
-            self.activePiece.position = self.activePiece.position - 1
+            self.activePiece:frameLeft()
         end
         if rightFrame then
-            self.activePiece.position = self.activePiece.position + 1
+            self.activePiece:frameRight()
         end
         if rotateCWFrame then
             self.activePiece:rotateCW()
@@ -75,16 +78,21 @@ function Scene.prototype:update(dt)
         if rotate180Frame then
             self.activePiece:rotate180()
         end
-    end
 
-    -- in the future, we should only calculate this if the piece moves
-    if self.activeNote and self.activePiece and (anyMovement or not self.activePiece.overlap) then
-        -- calculate piece collision
-        self.activePiece:updateCollision(self.activeNote)
+        -- held buttons
+        self.activePiece:holdLeft(leftHold, dt)
+        self.activePiece:holdRight(rightHold, dt)
+
+        
     end
 
     if self.activePiece then
         self.activePiece:update(dt)
+    end
+
+    if self.activeNote and self.activePiece and (anyMovement or not self.activePiece.overlap or leftHold or rightHold) then
+        -- calculate piece collision
+        self.activePiece:updateCollision(self.activeNote)
     end
 
     local okTime = self.song:getTimingStrictness("OK")
@@ -145,7 +153,13 @@ function Scene.prototype:update(dt)
             self.activeNote = bestDrop
             bestDrop:setActive(true)
             -- set up the new piece, etc
+            local carryDirection = self.activePiece and self.activePiece.direction or 1
+            local carryLeft = self.activePiece and self.activePiece.leftHoldTime or 0
+            local carryRight = self.activePiece and self.activePiece.rightHoldTime or 0
             self.activePiece = Classes.game_Piece.new(bestDrop:getPieceId(), bestDrop:getAltPieceId())
+            self.activePiece.direction = leftHold and -1 or 1
+            self.activePiece.leftHoldTime = carryLeft
+            self.activePiece.rightHoldTime = carryRight
         end
     else -- not bestDrop
         self.activePiece = nil
