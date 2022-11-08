@@ -10,7 +10,7 @@ _G.Libs = {} local Libs = Libs
 _G.drawImage = function(drawable, x, y, r, sx, sy, ox, oy, kx, ky, ignoreSnap)
     love.graphics.draw(
         drawable,
-        ignoreSnap and x or math.floor(x), ignoreSnap and y or math.floor(y), r,
+        ignoreSnap and (x or 0) or math.floor(x or 0), ignoreSnap and (y or 0) or math.floor(y or 0), r,
         sx and (sx < 0 and -sx or 1 / drawable:getWidth() * sx),
         sy and (sy < 0 and -sy or 1 / drawable:getHeight() * sy),
         ox and (ox <= 1 and drawable:getWidth() * ox or ox),
@@ -19,9 +19,34 @@ _G.drawImage = function(drawable, x, y, r, sx, sy, ox, oy, kx, ky, ignoreSnap)
     )
 end
 
+_G.drawText = function(text, x, y, r, sx, sy, ox, oy, kx, ky, ignoreSnap)
+    if sx and not sy then
+        sy = sx / (Libs.Asset.currentFont:getWidth(text)/Libs.Asset.currentFont:getHeight())
+    elseif sy and not sx then
+        sx = sy * (Libs.Asset.currentFont:getWidth(text)/Libs.Asset.currentFont:getHeight())
+    end
+    love.graphics.print(
+        text,
+        ignoreSnap and (x or 0) or math.floor(x or 0), ignoreSnap and (y or 0) or math.floor(y or 0), r,
+        sx and (sx < 0 and -sx or 1 / Libs.Asset.currentFont:getWidth(text) * sx),
+        sy and (sy < 0 and -sy or 1 / Libs.Asset.currentFont:getHeight() * sy),
+        ox and (ox <= 1 and Libs.Asset.currentFont:getWidth(text) * ox or ox),
+        oy and (oy <= 1 and Libs.Asset.currentFont:getHeight() * oy or oy),
+        kx, ky   
+    )    
+end
+
+function _G.drawStuff()
+    return love.graphics.push,
+           love.graphics.pop,
+           drawImage,
+           love.graphics.setColor,
+           drawText
+end
+_G.activeScene = 0
 ---- test functions
 function testLoad()
-    testScene = Classes.GameScene.new()
+    _G.activeScene = Classes.StartMenuScene.new()
     testLogo = Classes.gui_Logo.new()
 end
 
@@ -36,11 +61,11 @@ end
 
 function love.load()
     local classes = {
-        "GameScene", "EditorScene",
+        "GameScene", "EditorScene", "StartMenuScene", "MapSelectScene",
         "editor/Field", "game/Field",
         "game/Note", "game/Piece",
         "game/Song",
-        "gui/Logo",
+        "gui/Logo", "gui/Button",
     }
     local libs = {"Mouse", "Keyboard", "Gamepad", "Asset", "Tetris"}
 
@@ -62,6 +87,8 @@ function love.load()
         end
     end
 
+    Asset.loadFont("skinpath/font.ttf")
+
     testLoad()
 end
 
@@ -82,13 +109,19 @@ function love.draw()
         end
     end
 
+    -- debug info
+    love.graphics.push()
+    love.graphics.setColor(1,1,1,.5)
+    drawText("Pulse Drop debug version", love.graphics.getWidth()-10, love.graphics.getHeight(), 0, nil, 16, 1, 1)
+    love.graphics.pop()
+
     testDraw()
 end
 
 
 function love.update(dt)
     if dt > .5 then return end
-    --dt=dt/3
+    --dt=dt*500
     local postUpdateList = {}
     -- Make sure every class which has an update function updates
     for name, lib in pairs(Libs) do

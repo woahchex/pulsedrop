@@ -1,7 +1,7 @@
 local Logo = {}
 Logo.prototype = {
-    scale = 2;
-    position =  {x = 50, y = 50}, -- entire logo position
+    scale = 4,
+    position =  {x = 0, y = 0}, -- entire logo position
     p =         {x = 0, y = 0}, -- data for P
     d =         {x = 0, y = 48.6},  -- data for D
     u =         {x = 44.2, y = 30.4},  -- etc.
@@ -13,6 +13,10 @@ Logo.prototype = {
     p2 =        {x = 102.2, y = 66.4},
     underline = {x = 42.2, y = 64.4},
 
+    canvas = nil,
+
+    pixelWidth = 400,
+
     oScale = 1,
     pOffset = 0,
     arrowOffset = 0
@@ -21,23 +25,31 @@ Logo.__index = Logo.prototype
 
 local asset
 local draw = drawImage
-function Logo.prototype:draw()
+function Logo.prototype:draw(ox, oy)
+    local pixelWidth, pixelHeight = self.pixelWidth, self.pixelWidth
     asset = asset or Asset
     local s = self.scale
     local px, py = self.position.x, self.position.y
+    love.graphics.setCanvas(self.canvas)
+    love.graphics.clear()
     love.graphics.push()
     love.graphics.setColor(1,1,1,1)
-    draw(asset.image.letter_d, (self.d.x+px)*s, (self.d.y+py+self.pOffset/10)*s, 0, 40*s, 60*s)
-    draw(asset.image.letter_p, (self.p.x+px)*s, (self.p.y+py+self.pOffset)*s, 0, 40*s, 60*s)
-    draw(asset.image.letter_u, (self.u.x+px)*s, (self.u.y+py+self.pOffset/4)*s, 0, 28*s, 32*s)
-    draw(asset.image.letter_l_main, (self.l.x+px)*s, (self.l.y+py)*s, 0, 10*s, 64*s)
-    draw(asset.image.letter_s, (self.s.x+px)*s, (self.s.y+py+self.pOffset/4)*s, 0, 24*s, 32*s)
-    draw(asset.image.letter_e, (self.e.x+px)*s, (self.e.y+py+self.pOffset/4)*s, 0, 24*s, 32*s)
-    draw(asset.image.letter_r, (self.r.x+px)*s, (self.r.y+py+self.pOffset/6)*s, 0, 24*s, 32*s)
-    draw(asset.image.letter_p_main, (self.p2.x+px-6)*s, (self.p2.y+py+self.pOffset/6)*s, 0, 38*s, 58*s)
-    draw(asset.image.letter_p_arrow, (self.p2.x+px-6)*s, (self.p2.y+py+self.arrowOffset)*s, 0, 38*s, 58*s)
-    draw(asset.image.logo_underline, (self.underline.x+px)*s, (self.underline.y+py)*s, 0, 102*s, 44*s)
-    draw(asset.image.letter_o, (self.o.x+px+16)*s, (self.o.y+py+16)*s, 0, 32*s*self.oScale, 32*s*self.oScale, 0.5, 0.5)
+    draw(asset.image.letter_d, (self.d.x)*s, (self.d.y+self.pOffset/10)*s, 0, 40*s, 60*s)
+    draw(asset.image.letter_p, (self.p.x)*s, (self.p.y+self.pOffset)*s, 0, 40*s, 60*s)
+    draw(asset.image.letter_u, (self.u.x)*s, (self.u.y+self.pOffset/4)*s, 0, 28*s, 32*s)
+    draw(asset.image.letter_l_main, (self.l.x)*s, (self.l.y)*s, 0, 10*s, 64*s)
+    draw(asset.image.letter_s, (self.s.x)*s, (self.s.y+self.pOffset/4)*s, 0, 24*s, 32*s)
+    draw(asset.image.letter_e, (self.e.x)*s, (self.e.y+self.pOffset/4)*s, 0, 24*s, 32*s)
+    draw(asset.image.letter_r, (self.r.x)*s, (self.r.y+self.pOffset/6)*s, 0, 24*s, 32*s)
+    draw(asset.image.letter_p_main, (self.p2.x-6)*s, (self.p2.y+self.pOffset/6)*s, 0, 38*s, 58*s)
+    draw(asset.image.letter_p_arrow, (self.p2.x-6)*s, (self.p2.y+self.arrowOffset)*s, 0, 38*s, 58*s)
+    draw(asset.image.logo_underline, (self.underline.x)*s, (self.underline.y)*s, 0, 102*s, 44*s)
+    draw(asset.image.letter_o, (self.o.x+16)*s, (self.o.y+16)*s, 0, 32*s*self.oScale, 32*s*self.oScale, 0.5, 0.5)
+    love.graphics.pop()
+    love.graphics.setCanvas()
+    love.graphics.push()
+    local fact = (self.oScale+8)/9
+    draw(self.canvas, self.position.x, self.position.y, 0, pixelWidth*fact, pixelHeight*fact, ox or 0, oy or 0)
     love.graphics.pop()
 end
 
@@ -80,7 +92,7 @@ end
 -- Constructor for Logo
 function Logo.new()
     local newField = setmetatable({}, Logo)
-    
+    newField.canvas = love.graphics.newCanvas(576,576)
     -- load related assets, if applicable
     loadAssets()
 

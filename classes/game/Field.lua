@@ -2,8 +2,6 @@ local asset = Asset
 local draw = drawImage
 local gpush, gpop, setColor = love.graphics.push, love.graphics.pop, love.graphics.setColor
 
-
-
 local SIZERATIO = 2.5
 
 -- The field class handles rendering the play field. Also might work with player controls. Who knows!
@@ -34,7 +32,6 @@ local Field = {
             end
         end,
 
-
         draw = function(self, currentTime, activePiece, ox, oy)
             
             local height = love.graphics.getHeight()
@@ -57,7 +54,6 @@ local Field = {
                 if note:getActive() then
                     self.fadeOutOffset[i] = self.fadeOutOffset[i] or 2
                 end
-
 
                 local actualPosition = relativePosition * noteArea + hitLinePos
 
@@ -157,8 +153,6 @@ local Field = {
                     end
                 end
 
-
-
                 -- removing from buffer if it's expired
                 if relativePosition <= -0.5 then
                     self.notesToRender[i] = nil
@@ -189,9 +183,7 @@ local Field = {
                     end
                 end
                 gpop()
-            end
-
-            
+            end   
         end,
 
         addNote = function(self, note)

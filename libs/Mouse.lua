@@ -36,6 +36,9 @@ function Mouse.draw()
     
 end
 
+function Mouse.getPosition()
+    return Mouse.x, Mouse.y
+end
 
 function love.mousepressed(x, y, button, istouch, presses)
     Mouse.clicked = true

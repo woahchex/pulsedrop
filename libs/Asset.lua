@@ -30,6 +30,12 @@ function Asset.loadImage(path)
     Asset.image[pathData[#pathData]:gsub(".png","")] = love.graphics.newImage(path:gsub("skinpath", skinPath):gsub("mainpath", mainPath), nil) -- need this nil because i guess gsub returns indices also and fucks everything up
 end
 
+function Asset.loadFont(path)
+    local pathData = split(path, "/")
+    Asset.currentFont = love.graphics.newFont( path:gsub("skinpath", skinPath):gsub("mainpath", mainPath), 48 )
+    love.graphics.setFont(Asset.currentFont)
+end
+
 --[[function Asset.loadSound(path)
     Asset.sound[path] = love.audio.newSource(path)
 end]]
