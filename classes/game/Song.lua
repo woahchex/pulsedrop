@@ -123,8 +123,8 @@ function Song.new(notes, events, parameters)
     newSong.offset = parameters.general.StartOffset or 0
     newSong.notes = notes
     newSong.events = events
-    newSong.timingStrictness = parameters.general.TimingDifficulty or 1
-    newSong.approachRate = parameters.difficulty.ApproachRate or 2
+    newSong.timingStrictness = parameters.meta.TimingDifficulty or 1
+    newSong.approachRate = parameters.meta.ApproachRate or 2
 
     -- precalculate the approach rate of each note
     for i, note in ipairs(notes) do
@@ -315,7 +315,6 @@ function Song.compile( text )
     
     local generalParameters = getParameters(text, "GENERAL")
     local metaParameters = getParameters(text, "META")
-    local difficultyParameters = getParameters(text, "DIFFICULTY")
 
     local notes = getNotes( text )
     local events = getEvents( text )
@@ -323,13 +322,26 @@ function Song.compile( text )
     local songParameters = {
         general = generalParameters,
         meta = metaParameters,
-        difficulty = difficultyParameters
     }
 
     return Song.new(notes, events, songParameters)
 end
 
+function Song.compileInfo( text )
+    
+    local generalParameters = getParameters(text, "GENERAL")
+    local metaParameters = getParameters(text, "META")
 
+    local notes = getNotes( text )
+    local events = getEvents( text )
+
+    local songParameters = {
+        general = generalParameters,
+        meta = metaParameters
+    }
+
+    return notes, events, songParameters
+end
 
 
 

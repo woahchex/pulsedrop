@@ -1,3 +1,4 @@
+local dimensions = _G.SIZE
 local Scene Scene = {
     -- prototype instance for a game scene
     prototype = {
@@ -170,7 +171,7 @@ function Scene.prototype:update(dt)
 end
 
 function Scene.prototype:draw()
-    self.field.position = love.graphics.getWidth()/2
+    self.field.position = dimensions[1]/2
     self.field:draw(self.song.currentTime, self.activePiece)
 end
 

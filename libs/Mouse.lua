@@ -1,6 +1,7 @@
 local Mouse = {
     x = 0, y = 0,               -- Mouse screen position. Constantly updates
     speed = 0,                  -- Mouse magnitude for a given frame. Constantly updates
+    scrollDirection = 0,         -- Instantaneous scroll velocity
     clicked = false,            -- Set to true for one frame each mouse click
     doubleClicked = false,      -- Set to true for one frame each double click
     dragging = true,            -- Returns true if the mouse is being held.
@@ -22,7 +23,7 @@ end
 function Mouse.postUpdate(dt)
     Mouse.clicked = false
     Mouse.doubleClicked = false
-
+    Mouse.scrollDirection = 0
     Mouse.dragging = mouse.isDown(1)
     if Mouse.dragging then
         Mouse.dragTime = Mouse.dragTime + dt
@@ -51,5 +52,8 @@ function love.mousepressed(x, y, button, istouch, presses)
     Mouse.doubleClicked = presses == 2
 end
 
+function love.wheelmoved(x, y)
+    Mouse.scrollDirection = y < 0 and 1 or -1
+end
 
 return Mouse

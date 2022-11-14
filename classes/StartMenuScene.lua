@@ -1,4 +1,5 @@
 local asset = Asset
+local dimensions = _G.SIZE
 local draw, gprint = drawImage, drawText
 local gpush, gpop, setColor = love.graphics.push, love.graphics.pop, love.graphics.setColor
 local Scene Scene = {
@@ -15,13 +16,15 @@ local Scene Scene = {
         transitionTime = 0,
         transitionCells = {},
 
+
+
         --- methods
         destroy = function(self)
             Scene.activeScenes[self.id] = nil
         end,
 
         draw = function(self)
-            local width, height = love.graphics.getDimensions()
+            local width, height = dimensions[1], dimensions[2]
             gpush()
                 love.graphics.setColor(1,1,1,1)
                 -- first, draw the background image
@@ -41,7 +44,7 @@ local Scene Scene = {
                 -- draw the body of the menu
                 draw(asset.image.main_menu_body, width/2, height/2, 0, height, height, 0.5, 0.5)
             gpop()
-            
+
             -- draw the logo
             self.logo:draw(0.5, 0.7)
             
@@ -81,7 +84,7 @@ local Scene Scene = {
                 self.bgScale = 1.025
             end
 
-            local width, height = love.graphics.getDimensions()
+            local width, height = dimensions[1], dimensions[2]
 
             self.logo:update(dt)
             self.logo.pixelWidth = love.graphics.getHeight()*0.4
@@ -157,7 +160,7 @@ local function loadAssets()
 end
 
 local customDraw = function(self)
-    local width, height = love.graphics.getDimensions()
+    local width, height = dimensions[1], dimensions[2]
     love.graphics.push()
     setColor(1,1,1,1)
     drawText(self.text, self.x, self.y - math.abs(1-self.currentSize)*self.sy*7, 0, nil, self.sy*0.2, 0.5, 0.5, 0, 0, true)

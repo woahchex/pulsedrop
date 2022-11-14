@@ -1,5 +1,5 @@
 local asset = Asset
-local draw = drawImage
+local draw, dimensions = drawImage, _G.SIZE
 local gpush, gpop, setColor = love.graphics.push, love.graphics.pop, love.graphics.setColor
 
 local SIZERATIO = 2.5
@@ -34,7 +34,7 @@ local Field = {
 
         draw = function(self, currentTime, activePiece, ox, oy)
             
-            local height = love.graphics.getHeight()
+            local height = dimensions[2]
             local width = height/SIZERATIO
             ox, oy = ox or 0, oy or 0
 

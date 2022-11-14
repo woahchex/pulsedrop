@@ -31,6 +31,7 @@ function Keyboard.postUpdate(dt)
     for k, _ in pairs(Keyboard.justPressed) do
         Keyboard.justPressed[k] = nil
     end
+    Keyboard.anyKey = false
 end
 
 function Keyboard.isDown(key)
@@ -40,6 +41,7 @@ end
 function love.keypressed(key, scanCode, isRepeat)
     Keyboard.justPressed[key] = true
     Keyboard.keyDown[key] = true
+    Keyboard.anyKey = true
 end
 
 function love.keyreleased(key, scanCode, isRepeat)
