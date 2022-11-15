@@ -4,7 +4,7 @@ local draw, draw2, gprint = drawImage, drawImage2, drawText
 local gpush, gpop, setColor = love.graphics.push, love.graphics.pop, love.graphics.setColor
 local clamp = function(x, min, max) return x<min and min or x>max and max or x end
 
-local hat = love.audio.newSource("assets/sounds/ClosedHat1.wav", "static")
+local hat = Libs.Source2.new("assets/sounds/ClosedHat1.wav", "static")
 
 local Scene Scene = {
     -- This is the prototype instance for a scene object.
@@ -53,7 +53,7 @@ local Scene Scene = {
             self.pulseSize = 1.1
             self.bgScale = 1
             self.currentBeat = self.currentBeat + 1
-            --hat:play()
+            hat:play()
         end,
 
         updateMapPreview = function(self)
@@ -63,7 +63,7 @@ local Scene Scene = {
                 self.loadedSong:stop()
             end
 
-            self.loadedSong = love.audio.newSource("maps/" .. selectedSong.folder .. "/" .. selectedSong.songPath, "stream")
+            self.loadedSong = Libs.Source2.new("maps/" .. selectedSong.folder .. "/" .. selectedSong.songPath, "stream")
             self.loadedSong:seek(selectedSong.previewTime)
             self.adjustedSongTime = selectedSong.previewTime
             self.loadedSongVolume = 0
@@ -112,7 +112,7 @@ local Scene Scene = {
                 -- draw the menu background stuff
                 draw(asset.image.map_select_right_decoration, width/2+height/10, 0, 0, height*.2, height)
             gpop(); gpush()
-                setColor(0,0,0,1-self.loadedSongVolume)
+                setColor(0,0,0,1-self.loadedSongVolume+.25)
                 love.graphics.rectangle("fill", 0, 0, dimensions[1], dimensions[2])
             gpop(); gpush()
                 setColor(1,1,1,1)
@@ -159,22 +159,7 @@ local Scene Scene = {
             local dampening = 3/dt/40 -- used for tweens
 
             if self.loadedSong then
-                
-                local pitch = self.loadedSong:getPitch()
-
-                self.midSampleTime = self.midSampleTime + dt*pitch
-                
-                local rt = self.loadedSong:tell()
-                self.rawTime = self.rawTime>0 and self.rawTime or rt
-                
-                local tdif = rt-self.rawTime
-                if tdif > 0 then
-                    self.midSampleTime = dt*pitch
-                end
-                
-                
-                self.rawTime = rt
-                self.adjustedSongTime = rt + self.midSampleTime
+                self.adjustedSongTime = self.loadedSong:tell()
             end
 
             -- check inputs
@@ -247,7 +232,7 @@ local Scene Scene = {
                
                 
                 self.loadedSong:setVolume(self.loadedSongVolume)
-                local songTime = self.adjustedSongTime
+                local songTime = self.loadedSong:tell()
                 
                 self.loadedSongVolume = (self.loadedSongVolume*dampening*4 + 1)/(dampening*4+1)
                 local crochet = 60/self.currentBPM

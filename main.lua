@@ -85,7 +85,7 @@ function love.load()
         "game/Song",
         "gui/Logo", "gui/Button", 
     }
-    local libs = {"IO", "Mouse", "Keyboard", "Gamepad", "Asset", "Tetris"}
+    local libs = {"IO", "Mouse", "Keyboard", "Gamepad", "Asset", "Tetris", "Source2"}
 
 
     for _, lib in ipairs(libs) do
@@ -155,7 +155,7 @@ function love.run()
 
         if love.update then love.update(dt) end -- will pass 0 if love.timer is disabled
 
-		if love.timer then love.timer.sleep(0.0002) end
+		if love.timer then love.timer.sleep(0.001) end
 	end
 end
 

@@ -56,7 +56,7 @@ local Scene Scene = {
             gpush()
                 setColor(0,0,0,1)
                 for i, v in ipairs(self.transitionCells) do
-                   love.graphics.rectangle("fill", width/10*i, height, -width/10, -v[2]) 
+                   love.graphics.rectangle("fill", width/10*i, height, -width/10, -v[2]*height*1.1) 
                 end
             gpop()
         end,
@@ -64,10 +64,13 @@ local Scene Scene = {
         update = function(self, dt)
             if self.inTransition then
                 self.transitionTime = self.transitionTime + dt
+                local dampening = 12/dt/40 -- used for tweens
+
                 for i, v in ipairs(self.transitionCells) do
                     if self.transitionTime >= i/15 then
-                        v[1] = v[1] + dt*16
-                        v[2] = v[2] + v[1] * love.graphics.getHeight() / 600
+    
+                        v[2] = (v[2]*dampening + 1)/(dampening+1)
+
                     end
                 end
                 if self.transitionTime > 2 then
