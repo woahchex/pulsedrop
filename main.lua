@@ -7,6 +7,8 @@ _G.Libs = {} local Libs = Libs
 _G.SIZE = {love.graphics.getDimensions()}
 
 local fps = 0
+local FRAMELIMIT = 144
+local frameTime = 0
 
 -- negative sx and sy values do default behavior; positive values are pixel measurements
 -- ox and oy values between 0 and 1 will be treated as a ratio to image size (anchor point)
@@ -139,19 +141,21 @@ function love.run()
 		if love.timer then dt = love.timer.step() end
 
 		-- Call update and draw
-
-		if love.graphics and love.graphics.isActive() then
+        frameTime = frameTime + dt
+        
+		if frameTime >= 1/FRAMELIMIT and love.graphics and love.graphics.isActive() then
+            frameTime = frameTime - 1/FRAMELIMIT
 			love.graphics.origin()
 			love.graphics.clear(love.graphics.getBackgroundColor())
 
-			if love.draw then love.draw(dt) end
+			if love.draw then love.draw() end
 
 			love.graphics.present()
 		end
 
         if love.update then love.update(dt) end -- will pass 0 if love.timer is disabled
 
-		if love.timer then love.timer.sleep(0) end
+		if love.timer then love.timer.sleep(0.0002) end
 	end
 end
 

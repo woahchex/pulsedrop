@@ -26,8 +26,11 @@ local Scene Scene = {
 
         loadedSelection = 0,
         loadedSong = false,
+        rawTime = 0,
         loadedSongVolume = 0,
         loadedBackground = false,
+        adjustedSongTime = 0,
+        midSampleTime = 0,
 
         currentBeat = 0,
         currentBPM = 0,
@@ -50,7 +53,7 @@ local Scene Scene = {
             self.pulseSize = 1.1
             self.bgScale = 1
             self.currentBeat = self.currentBeat + 1
-            hat:play()
+            --hat:play()
         end,
 
         updateMapPreview = function(self)
@@ -62,9 +65,9 @@ local Scene Scene = {
 
             self.loadedSong = love.audio.newSource("maps/" .. selectedSong.folder .. "/" .. selectedSong.songPath, "stream")
             self.loadedSong:seek(selectedSong.previewTime)
-            
+            self.adjustedSongTime = selectedSong.previewTime
             self.loadedSongVolume = 0
-            --self.loadedSong:setPitch(0.5)
+            self.loadedSong:setPitch(1)
             self.loadedSong:play()
             
             self.loadedBackground = love.graphics.newImage("maps/" .. selectedSong.folder .. "/" .. selectedSong.bgPath)
@@ -155,6 +158,25 @@ local Scene Scene = {
         update = function(self, dt)
             local dampening = 3/dt/40 -- used for tweens
 
+            if self.loadedSong then
+                
+                local pitch = self.loadedSong:getPitch()
+
+                self.midSampleTime = self.midSampleTime + dt*pitch
+                
+                local rt = self.loadedSong:tell()
+                self.rawTime = self.rawTime>0 and self.rawTime or rt
+                
+                local tdif = rt-self.rawTime
+                if tdif > 0 then
+                    self.midSampleTime = dt*pitch
+                end
+                
+                
+                self.rawTime = rt
+                self.adjustedSongTime = rt + self.midSampleTime
+            end
+
             -- check inputs
             if math.abs(Mouse.scrollDirection) > 0 then
                 self.timeSinceSelectionChanged = 0
@@ -223,12 +245,15 @@ local Scene Scene = {
             local selectedSong = self.mapList[self.selectedSong]
             if self.loadedSong and selectedSong.bpmTracker and self.loadedSelection == self.selectedSong then
                
+                
                 self.loadedSong:setVolume(self.loadedSongVolume)
-                local songTime = self.loadedSong:tell()
+                local songTime = self.adjustedSongTime
+                
                 self.loadedSongVolume = (self.loadedSongVolume*dampening*4 + 1)/(dampening*4+1)
                 local crochet = 60/self.currentBPM
                 local startTime = selectedSong.bpmTracker[self.currentEvent][1]
                 local endTime = startTime + crochet*self.currentBeat
+                
                 if songTime >= endTime then
                     self:pulse()
                     while startTime + crochet*self.currentBeat < songTime do
@@ -242,6 +267,8 @@ local Scene Scene = {
                     self:pulse()
                     self.currentBeat = 0
                 end
+
+                --print(self.adjustedSongTime, self.rawTime)
             end
 
             self.mapList[self.selectedSong].glow = (self.mapList[self.selectedSong].glow*dampening*4 + 1)/(dampening*4+1)
