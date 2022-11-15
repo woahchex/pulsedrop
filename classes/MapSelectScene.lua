@@ -326,6 +326,9 @@ local function customDraw(self)
         setColor(1,1,1, self.glow)
         draw(self.glowImage, self.x, self.y, 0, self.sx*self.currentSize, self.sy*self.currentSize, self.ox, self.oy)        
     gpop(); gpush()
+        setColor(0,0,0,.25)
+        gprint(tostring(#self.maps).." map"..(#self.maps==1 and "" or "s"), self.x + (self.sx*self.currentSize*.05), self.y + (self.sy*self.currentSize) - (self.sx*self.currentSize/20), 0, nil, self.sy*self.currentSize/8, 0, 1)
+    gpop(); gpush()
         if self.thumbnail then
             setColor(self.glow,self.glow,self.glow,1)
             local sy = self.sy*self.currentSize*0.7
