@@ -68,7 +68,6 @@ function Source2.update(dt)
             sound.rawTime = sound.rawTime>0 and sound.rawTime or rt
             
             if rt-sound.rawTime>0 then
-                print((sound.adjustedTime - rt))
                 sound.midSampleTime = 0--dt*sound.pitch
             end
             

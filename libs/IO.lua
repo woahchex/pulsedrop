@@ -144,9 +144,7 @@ function IO.getSongs(customDraw, bg, glow)
                     local eventString = tostring(params.general.StartOffset) .. "," .. tostring(params.general.BPM)
                     
                     for i, event in ipairs(events) do
-                        print(events[i][5])
                         if tonumber(events[i][5]) then
-                            print("EVENT")
                             eventString = eventString .. "," .. tostring(events[i][1]) .. "," .. tostring(events[i][5])
                             button.bpmTracker[#button.bpmTracker+1] = {events[i][1], events[i][5]}
                         end

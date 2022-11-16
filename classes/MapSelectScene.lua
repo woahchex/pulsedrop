@@ -53,7 +53,7 @@ local Scene Scene = {
             self.pulseSize = 1.1
             self.bgScale = 1
             self.currentBeat = self.currentBeat + 1
-            hat:play()
+            --hat:play()
         end,
 
         updateMapPreview = function(self)
@@ -67,6 +67,7 @@ local Scene Scene = {
             self.loadedSong:seek(selectedSong.previewTime)
             self.adjustedSongTime = selectedSong.previewTime
             self.loadedSongVolume = 0
+            self.loadedSong:setVolume(0)
             self.loadedSong:setPitch(1)
             self.loadedSong:play()
             
@@ -117,15 +118,27 @@ local Scene Scene = {
             gpop(); gpush()
                 setColor(1,1,1,1)
                 local d45 = 0.785398
+            
+                draw(asset.image.map_select_wheel_highlight, width/2+height/10, height*.3, 0, height*0.4*self.pulseSize, height*0.1/self.pulseSize, 0, 0.5)
                 draw(asset.image.map_select_difficulty_wheel, width/2+height/10, height*.3, -d45*(self.selectedDifficultyTween-1), height/5*self.pulseSize, height/5*self.pulseSize, 0.5, 0.5)
+                draw(asset.image.map_select_star_icon, width/2+height*.175, height*.3, 0, height/40, height/40, 0.5, 0.5)
+                
                 if self.mapList[self.selectedSong].maps then
                     for i = clamp(self.selectedDifficulty - 3, 1, #self.mapList[self.selectedSong].maps), clamp(self.selectedDifficulty + 3, 1, #self.mapList[self.selectedSong].maps) do
                         local map = self.mapList[self.selectedSong].maps[i]
-                        gprint("        " .. map[2], width/2+height/10, height*.3, d45*(i-1) - d45*(self.selectedDifficultyTween-1), nil, height/25, 0, 0.5)
+                        gpush()
+                            setColor(0,0,0,.5)
+                            gprint("       " .. map[2], width/2+height/10, height*.305, d45*(i-1) - d45*(self.selectedDifficultyTween-1), nil, height/25, 0, 0.5)
+                        gpop()
+                        setColor(1,1,1,1)
+                        gprint("       " .. map[2], width/2+height/10, height*.3, d45*(i-1) - d45*(self.selectedDifficultyTween-1), nil, height/25, 0, 0.5)
                     end
                 end
             gpop(); gpush()
-
+                setColor(0,0,0,1)
+                gprint("?.??", width/2+height*.16, height*.3, 0, nil, height/40, 1, 0.5)  
+            gpop(); gpush()
+                setColor(1,1,1,1)
                 draw(asset.image.map_select_info_panel, width/2+height/10, height, 0, height*.4, height*.4, 0, 1)
                 draw(asset.image.map_select_scroll_background, width/2-height/2, 0, 0, height*.6, height)
                 
@@ -137,15 +150,34 @@ local Scene Scene = {
                         button.sx, button.sy = height/5*3, height/5
                         button.x = ofx
                         button.y = ofy + button.sy*(i-1) - button.sy*(self.selectedSongTween-1)
-                        button:draw()
+                        button:draw(self.pulseSize)
                     end
                 end
 
             gpop(); gpush()
                 setColor(1,1,1,1)
-                draw(asset.image.map_select_filter_box, width/2-height/2, 0, 0, height*.6, height*.2)
-            gpop(); gpush()
+                --draw(asset.image.map_select_filter_box, width/2-height/2, 0, 0, height*.6, height*.2)
+                
+                for i, v in ipairs(self.mapList[self.selectedSong].maps[self.selectedDifficulty]) do
+                    --print(i, v)
+                end
 
+                -- draw map info
+                local durationString = self.loadedSong and generateTimestamp(self.mapList[self.selectedSong].maps[self.selectedDifficulty][10]-self.mapList[self.selectedSong].maps[self.selectedDifficulty][9], false, true) or "??:??"
+                gprint(self.mapList[self.selectedSong].songName, width/2+height*0.115, height*.675, 0, nil, height*.035, 0, 0)
+                gprint("Duration: ".. durationString, width/2+height*0.115, height*.8, 0, nil, height*.025, 0, 0)
+                gprint("Approach Rate: "..(math.floor(self.mapList[self.selectedSong].maps[self.selectedDifficulty][5])).." sec", width/2+height*0.115, height*.825, 0, nil, height*.025, 0, 0)
+                gprint("Timing Pity: "..(math.floor(self.mapList[self.selectedSong].maps[self.selectedDifficulty][4]*100)).."%", width/2+height*0.115, height*.85, 0, nil, height*.025, 0, 0)
+                gprint("HP Drain: "..(math.floor(self.mapList[self.selectedSong].maps[self.selectedDifficulty][5]*100)).."%", width/2+height*0.115, height*.875, 0, nil, height*.025, 0, 0)
+                local numNotes = self.mapList[self.selectedSong].maps[self.selectedDifficulty][8]
+                local numDrops = self.mapList[self.selectedSong].maps[self.selectedDifficulty][7]
+                gprint(numNotes..(numNotes==1 and" move | " or " moves | ")..numDrops..(numDrops==1 and" drop" or " drops"), width/2+height*0.115, height*.9, 0, nil, height*.025, 0, 0)
+            gpop(); gpush()
+                setColor(204/255,215/255,1,1)
+                gprint("["..self.mapList[self.selectedSong].maps[self.selectedDifficulty][2].."]", width/2+height*0.115, height*.62, 0, nil, height*.05, 0, 0)
+                gprint("Song by "..self.mapList[self.selectedSong].artist, width/2+height*0.115, height*.725, 0, nil, height*.025, 0, 0)
+                gprint("Map by "..self.mapList[self.selectedSong].maps[self.selectedDifficulty][3], width/2+height*0.115, height*.75, 0, nil, height*.025, 0, 0)
+            gpop(); gpush()
                 setColor(0,0,0,1)
                 for i, v in ipairs(self.transitionCells) do
                    love.graphics.rectangle("fill", width/10*i, height, -width/10, -v[2]) 
@@ -305,12 +337,14 @@ local function loadAssets()
         "skinpath/map_select/map_select_info_panel.png",
         "skinpath/map_select/map_select_song_glow.png",
         "skinpath/map_select/map_select_song_bg.png",
+        "skinpath/map_select/map_select_wheel_highlight.png",
+        "skinpath/map_select/map_select_star_icon.png",
     }) do
         asset.loadImage(path)
     end
 end
 
-local function customDraw(self)
+local function customDraw(self, pulseSize)
     local width, height = dimensions[1], dimensions[2]
     gpush()
         setColor(1,1,1,1)

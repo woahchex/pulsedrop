@@ -54,6 +54,14 @@ _G.drawText = function(text, x, y, r, sx, sy, ox, oy, kx, ky, ignoreSnap)
     )    
 end
 
+function _G.generateTimestamp(time, h, m, ms)
+    local hours = tostring(math.floor(time / 60 / 60)); hours = string.rep("0", 2-#hours)..hours
+    local minutes = tostring(math.floor(time / 60) % (h and math.huge or 60)); minutes = string.rep("0", 2-#minutes)..minutes
+    local seconds = tostring(math.floor(time) % 60); seconds = string.rep("0", 2-#seconds)..seconds
+    local milliseconds = tostring(math.floor((time - math.floor(time))*100)); milliseconds = milliseconds .. string.rep("0", 2-#milliseconds)
+    return (h and hours..":" or "")..(m and minutes..":" or "")..seconds..(ms and "."..milliseconds or "")
+end
+
 function _G.drawStuff()
     return love.graphics.push,
            love.graphics.pop,
@@ -155,7 +163,7 @@ function love.run()
 
         if love.update then love.update(dt) end -- will pass 0 if love.timer is disabled
 
-		if love.timer then love.timer.sleep(0.002) end
+		if love.timer then love.timer.sleep(0.00) end
 	end
 end
 
