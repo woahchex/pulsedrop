@@ -6,6 +6,8 @@ _G.Classes = {} local Classes = Classes
 _G.Libs = {} local Libs = Libs
 _G.SIZE = {love.graphics.getDimensions()}
 
+_G.moonshine = false
+
 local fps = 0
 local FRAMELIMIT = 144
 local frameTime = 0
@@ -54,6 +56,14 @@ _G.drawText = function(text, x, y, r, sx, sy, ox, oy, kx, ky, ignoreSnap)
     )    
 end
 
+function _G.drawStuff()
+    return love.graphics.push,
+           love.graphics.pop,
+           drawImage,
+           love.graphics.setColor,
+           drawText
+end
+
 function _G.generateTimestamp(time, h, m, ms)
     local hours = tostring(math.floor(time / 60 / 60)); hours = string.rep("0", 2-#hours)..hours
     local minutes = tostring(math.floor(time / 60) % (h and math.huge or 60)); minutes = string.rep("0", 2-#minutes)..minutes
@@ -62,13 +72,7 @@ function _G.generateTimestamp(time, h, m, ms)
     return (h and hours..":" or "")..(m and minutes..":" or "")..seconds..(ms and "."..milliseconds or "")
 end
 
-function _G.drawStuff()
-    return love.graphics.push,
-           love.graphics.pop,
-           drawImage,
-           love.graphics.setColor,
-           drawText
-end
+
 _G.activeScene = 0
 ---- test functions
 function testLoad()
@@ -91,9 +95,9 @@ function love.load()
         "editor/Field", "game/Field",
         "game/Note", "game/Piece",
         "game/Song",
-        "gui/Logo", "gui/Button", 
+        "gui/Logo", "gui/Button", "gui/Particle" 
     }
-    local libs = {"IO", "Mouse", "Keyboard", "Gamepad", "Asset", "Tetris", "Source2"}
+    local libs = {"IO", "Mouse", "Keyboard", "Gamepad", "Asset", "Tetris", "Source2", "moonshine"}
 
 
     for _, lib in ipairs(libs) do

@@ -108,7 +108,9 @@ local Scene Scene = {
                 if iRatio < width/height then
                     scaleByWidth = true
                 end
+                
                 draw(self.loadedBackground, width/2, height/2, 0, (scaleByWidth and width or height*iRatio)*self.bgScale, (scaleByWidth and width/iRatio or height)*self.bgScale, 0.5, 0.5)
+                
                 
                 -- draw the menu background stuff
                 draw(asset.image.map_select_right_decoration, width/2+height/10, 0, 0, height*.2, height)
@@ -126,10 +128,8 @@ local Scene Scene = {
                 if self.mapList[self.selectedSong].maps then
                     for i = clamp(self.selectedDifficulty - 3, 1, #self.mapList[self.selectedSong].maps), clamp(self.selectedDifficulty + 3, 1, #self.mapList[self.selectedSong].maps) do
                         local map = self.mapList[self.selectedSong].maps[i]
-                        gpush()
-                            setColor(0,0,0,.5)
-                            gprint("       " .. map[2], width/2+height/10, height*.305, d45*(i-1) - d45*(self.selectedDifficultyTween-1), nil, height/25, 0, 0.5)
-                        gpop()
+                        setColor(0,0,0,.5)
+                        gprint("       " .. map[2], width/2+height/10, height*.305, d45*(i-1) - d45*(self.selectedDifficultyTween-1), nil, height/25, 0, 0.5)
                         setColor(1,1,1,1)
                         gprint("       " .. map[2], width/2+height/10, height*.3, d45*(i-1) - d45*(self.selectedDifficultyTween-1), nil, height/25, 0, 0.5)
                     end
@@ -360,7 +360,7 @@ local function customDraw(self, pulseSize)
         setColor(1,1,1, self.glow)
         draw(self.glowImage, self.x, self.y, 0, self.sx*self.currentSize, self.sy*self.currentSize, self.ox, self.oy)        
     gpop(); gpush()
-        setColor(0,0,0,.25)
+        setColor(0,0,0,.5)
         gprint(tostring(#self.maps).." map"..(#self.maps==1 and "" or "s"), self.x + (self.sx*self.currentSize*.05), self.y + (self.sy*self.currentSize) - (self.sx*self.currentSize/20), 0, nil, self.sy*self.currentSize/8, 0, 1)
     gpop(); gpush()
         if self.thumbnail then
