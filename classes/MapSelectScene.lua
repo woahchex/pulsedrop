@@ -24,6 +24,8 @@ local Scene Scene = {
         transitionCells = {},
         timeSinceSelectionChanged = 0,
 
+        particleLayer1 = false,
+
         loadedSelection = 0,
         loadedSong = false,
         rawTime = 0,
@@ -53,6 +55,32 @@ local Scene Scene = {
             self.pulseSize = 1.1
             self.bgScale = 1
             self.currentBeat = self.currentBeat + 1
+            
+            self.particleLayer1:insert(gui_Particle.new(
+                asset.image.map_select_difficulty_wheel_pulse, 
+                dimensions[1]/2+dimensions[2]/10, dimensions[2]*.3, 
+                -math.rad(45)*(self.selectedDifficultyTween-1), 
+                dimensions[2]/5, dimensions[2]/5, 
+                .5, .5, 0, 0, 0, 0, dimensions[2]/180, 1, -0.05, 1
+            ))
+
+            local loopSize = math.floor(dimensions[1]/dimensions[2]*3)
+            for i = 1, loopSize do
+                local size = math.random(1,5)*dimensions[2]*.3
+                self.particleLayer1:insert(gui_Particle.new(
+                    asset.image.map_select_background_glow,
+                    math.random(0, dimensions[1]), math.random(0, dimensions[2]), 0,
+                    size, size, 0.5, 0.5, 0, 0, 0, 0, -dimensions[2]/400, 1, -0.01, 3
+                ))
+
+                self.particleLayer1:insert(gui_Particle.new(
+                    asset.image.map_select_background_sparkle,
+                    math.random(0, dimensions[1]), math.random(0, dimensions[2]), 0,
+                    size/20, size/20, 0.5, 0.5, 0, 0, 0, dimensions[2]/70000, -dimensions[2]/8000, 1, -0.005, 3
+                ))
+            end
+            
+
             --hat:play()
         end,
 
@@ -117,10 +145,12 @@ local Scene Scene = {
             gpop(); gpush()
                 setColor(0,0,0,1-self.loadedSongVolume+.25)
                 love.graphics.rectangle("fill", 0, 0, dimensions[1], dimensions[2])
-            gpop(); gpush()
+            gpop(); gpush()            
+                self.particleLayer1:draw()
+
                 setColor(1,1,1,1)
                 local d45 = 0.785398
-            
+
                 draw(asset.image.map_select_wheel_highlight, width/2+height/10, height*.3, 0, height*0.4*self.pulseSize, height*0.1/self.pulseSize, 0, 0.5)
                 draw(asset.image.map_select_difficulty_wheel, width/2+height/10, height*.3, -d45*(self.selectedDifficultyTween-1), height/5*self.pulseSize, height/5*self.pulseSize, 0.5, 0.5)
                 draw(asset.image.map_select_star_icon, width/2+height*.175, height*.3, 0, height/40, height/40, 0.5, 0.5)
@@ -153,7 +183,8 @@ local Scene Scene = {
                         button:draw(self.pulseSize)
                     end
                 end
-
+                setColor(1,1,1,1)
+                draw(asset.image.map_select_song_top, ofx, ofy - height/5*(self.selectedSongTween), 0, height/5*3, height/5)
             gpop(); gpush()
                 setColor(1,1,1,1)
                 --draw(asset.image.map_select_filter_box, width/2-height/2, 0, 0, height*.6, height*.2)
@@ -333,12 +364,16 @@ local function loadAssets()
         "skinpath/map_select/map_select_scroll_background.png",
         "skinpath/map_select/map_select_filter_box.png",
         "skinpath/map_select/map_select_difficulty_wheel.png",
+        "skinpath/map_select/map_select_difficulty_wheel_pulse.png",
         "skinpath/map_select/map_select_right_decoration.png",
         "skinpath/map_select/map_select_info_panel.png",
         "skinpath/map_select/map_select_song_glow.png",
         "skinpath/map_select/map_select_song_bg.png",
+        "skinpath/map_select/map_select_song_top.png",
         "skinpath/map_select/map_select_wheel_highlight.png",
         "skinpath/map_select/map_select_star_icon.png",
+        "skinpath/map_select/map_select_background_glow.png",
+        "skinpath/map_select/map_select_background_sparkle.png"
     }) do
         asset.loadImage(path)
     end
@@ -386,6 +421,8 @@ function Scene.new()
     newScene.transitionCells = {{0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}}
     newScene.mapList = IO.getSongs( customDraw, asset.image.map_select_song_bg, asset.image.map_select_song_glow ) -- KEEP THIS LINE
     newScene.loadedBackground = asset.image.main_menu_default_background
+
+    newScene.particleLayer1 = Classes.gui_Particle.newContainer()
 
     return newScene
 end

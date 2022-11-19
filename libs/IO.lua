@@ -235,11 +235,36 @@ function IO.copyFolder( root, destination )
     local folderName = trimSplit(root, "/")
     folderName = folderName[#folderName]
 
+    local folderItems = love.filesystem.getDirectoryItems(root)
 
+    local copyTarget = destination .. "/" .. folderName
+    if not love.filesystem.getInfo(copyTarget) then
+        love.filesystem.createDirectory(copyTarget)
+    end
+
+    for i, name in ipairs(folderItems) do
+        if not name:find(".", nil, true) then
+            -- it's a folder
+            love.filesystem.createDirectory(copyTarget .. "/" .. name)
+            IO.copyFolder(root .. "/" .. name, copyTarget)
+        else
+            -- it's a file
+            local origFilename = root.."/"..name
+            local copyFilename = copyTarget.."/"..name
+            
+            local fileData = love.filesystem.read(origFilename)
+            love.filesystem.write(copyFilename, fileData)
+        end
+    end
 end
 
 function IO.init()
-    -- make a maps folder if it doesn't exist    
+    -- make a maps folder if it doesn't exist
+    if not love.filesystem.getInfo("maps") then
+        print("PRE-LOADING DEMO MAPS")
+        IO.copyFolder("assets/maps", "")
+        love.filesystem.write("MAP_CACHE", "")
+    end
 end
 
 return IO

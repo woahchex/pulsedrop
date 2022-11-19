@@ -50,6 +50,6 @@
 --- newBPM (xxx.xxx/na);
 
 @EVENTS:
-    95, off, standard, na, 400
+    0, off, standard, na, na
     END
 

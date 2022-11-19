@@ -2,11 +2,11 @@
     SongPath [song.mp3]
     SongID [1]
     BGPath [bg.png]
-    StartOffset [0.94735]
+    StartOffset [9.483]
     BPM [148]
     Title [Suffer for Fashion]
     Artist [of Montreal]
-    PreviewTime [86.35];
+    PreviewTime [65.8];
 
 @META:
     Mapper [chex]
@@ -42,14 +42,7 @@
 
     END
 
--- events format:
---- timestamp (x.xxx),
---- fever toggle (on/off/na),
---- change drumset (soft/standard/hard/na),
---- newApproachRate (1.0 - 9.0/na),
---- newBPM (xxx.xxx/na);
-
 @EVENTS:
-    95, off, standard, 400, 400
+    
     END
 

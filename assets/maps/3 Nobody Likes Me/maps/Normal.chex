@@ -1,0 +1,48 @@
+@GENERAL:
+    SongPath [song.mp3]
+    SongID [3]
+    BGPath [bg.png]
+    StartOffset [0.05]
+    BPM [127.975]
+    Title [Nobody Likes Me]
+    Artist [The Northern Boys]
+    PreviewTime [75.5];
+
+@META:
+    Mapper [chex]
+    Difficulty [Normal]
+    MapID [1]
+    DifficultyId [1]
+    TimingDifficulty [1]
+    ApproachRate [2]
+    HPDrain [1];
+
+@NOTES:
+    0, D, 1.0, T, I,
+        [OOO    OOO];
+    0.94735, D, 1.0, I, I,
+        [OOO    OOO];
+    3.000, D, 1.0, I, I,
+        [OOO    OOO];
+    4.000, D, 1.0, I, I,
+        [OOO    OOO];
+    5.000, D, 1.0, I, I,
+        [OOO    OOO];
+    6.000, D, 1.0, T, I,
+        [OOO    OOO];
+    7.000, D, 1.0, I, I,
+        [OOO    OOO];
+    8.000, D, 1.0, I, I,
+        [OOO    OOO];
+    9.000, D, 1.0, I, I,
+        [OOO    OOO];
+    10.000, D, 1.0, I, I,
+        [OOO    OOO];
+    11, M, 1.0;
+
+    END
+
+@EVENTS:
+    0, off, standard, na, na
+    END
+

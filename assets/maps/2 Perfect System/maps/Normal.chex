@@ -2,11 +2,11 @@
     SongPath [song.mp3]
     SongID [2]
     BGPath [bg.png]
-    StartOffset [0.94735]
+    StartOffset [0]
     BPM [148]
     Title [Perfect System]
     Artist [Oingo Boingo]
-    PreviewTime [86.35];
+    PreviewTime [151.235];
 
 @META:
     Mapper [chex]

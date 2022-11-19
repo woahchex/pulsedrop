@@ -2,11 +2,11 @@
     SongPath [song.mp3]
     SongID [2]
     BGPath [bg.png]
-    StartOffset [0.94735]
-    BPM [148]
-    Title [Perfect System]
-    Artist [Oingo Boingo]
-    PreviewTime [86.35];
+    StartOffset [0.41]
+    BPM [160]
+    Title [Bring It All Back]
+    Artist [MasterSwordRemix]
+    PreviewTime [162.4];
     
 @META:
     Mapper [chex]
@@ -50,6 +50,7 @@
 --- newBPM (xxx.xxx/na);
 
 @EVENTS:
-    0, off, standard, na, na
+    197.5, off, standard, na, 1;
+    204.32, off, standard, na, 160
     END
 

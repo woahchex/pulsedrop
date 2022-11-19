@@ -76,7 +76,8 @@ end
 _G.activeScene = 0
 ---- test functions
 function testLoad()
-    _G.activeScene = Classes.StartMenuScene.new();
+    _G.activeScene = Classes.StartMenuScene.new()
+    
 end
 
 
