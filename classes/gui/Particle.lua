@@ -1,5 +1,5 @@
 local Particle = {
-    TICKRATE = 60,
+    TICKRATE = 30,
     
     instances = setmetatable({}, {__mode=""}),
 

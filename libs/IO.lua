@@ -243,7 +243,7 @@ function IO.copyFolder( root, destination )
     end
 
     for i, name in ipairs(folderItems) do
-        if not name:find(".", nil, true) then
+        if love.filesystem.getInfo(root.."/"..name).type=="directory" then
             -- it's a folder
             love.filesystem.createDirectory(copyTarget .. "/" .. name)
             IO.copyFolder(root .. "/" .. name, copyTarget)
