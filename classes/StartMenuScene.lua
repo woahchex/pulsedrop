@@ -185,19 +185,19 @@ function Scene.new()
     -- load related assets, if applicable
     loadAssets()
 
-    newScene.startButton = Classes.gui_Button.new(asset.image.main_menu_play_button_background, 0, 0, 0, 0, 0.5, 0.5)
+    newScene.startButton = Classes.gui_GuiElement.newButton(asset.image.main_menu_play_button_background, 0, 0, 0, 0, 0.5, 0.5)
         --newScene.startButton.color = {.2,1,.2}
         newScene.startButton.draw = customDraw
         newScene.startButton.overlay = asset.image.main_menu_play_button_overlay
         newScene.startButton.icon = asset.image.main_menu_play_button
         newScene.startButton.text = "PLAY"
-    newScene.editButton = Classes.gui_Button.new(asset.image.main_menu_edit_button_background, 0, 0, 0, 0, 0.5, 0.5)
+    newScene.editButton = Classes.gui_GuiElement.newButton(asset.image.main_menu_edit_button_background, 0, 0, 0, 0, 0.5, 0.5)
         --newScene.editButton.color = {1,.75,0}
         newScene.editButton.draw = customDraw
         newScene.editButton.overlay = asset.image.main_menu_edit_button_overlay
         newScene.editButton.icon = asset.image.main_menu_editor_button
         newScene.editButton.text = "CREATE"
-    newScene.optionsButton = Classes.gui_Button.new(asset.image.main_menu_settings_button_background, 0, 0, 0, 0, 0.5, 0.5)
+    newScene.optionsButton = Classes.gui_GuiElement.newButton(asset.image.main_menu_settings_button_background, 0, 0, 0, 0, 0.5, 0.5)
         --newScene.optionsButton.color = {1, 0.4, 0.4}
         newScene.optionsButton.draw = customDraw
         newScene.optionsButton.overlay = asset.image.main_menu_button_overlay

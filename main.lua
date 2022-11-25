@@ -74,10 +74,12 @@ end
 
 
 _G.activeScene = 0
+local testButton
 ---- test functions
 function testLoad()
-    _G.activeScene = Classes.EmptyScene.new()
-    
+    _G.activeScene = Classes.StartMenuScene.new()
+    testButton = gui_GuiElement.newButton()
+    print(testButton.dampening)
 end
 
 
@@ -86,7 +88,7 @@ function testDraw()
 end
 
 function testUpdate(dt)
-    
+
 end
 
 
@@ -96,9 +98,9 @@ function love.load()
         "editor/Field", "game/Field",
         "game/Note", "game/Piece",
         "game/Song",
-        "gui/Logo", "gui/Button", "gui/Particle" 
+        "gui/GuiElement", "gui/Logo", "gui/Particle"
     }
-    local libs = {"IO", "Mouse", "Keyboard", "Gamepad", "Asset", "Tetris", "Source2", "moonshine"}
+    local libs = {"IO", "Mouse", "Keyboard", "Gamepad", "Asset", "Tetris", "Source2"}
 
 
     for _, lib in ipairs(libs) do

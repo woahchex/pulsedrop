@@ -69,7 +69,7 @@ function IO.getSongs(customDraw, bg, glow)
         if line == "" then break end
         
         local unpack = trimSplit(line, "|!|")
-        local button = Classes.gui_Button.new(bg)
+        local button = Classes.gui_GuiElement.newButton(bg)
             button.draw = customDraw
             button.glow = 0.5; button.glowImage = glow
             button.songId = unpack[1]
@@ -128,7 +128,7 @@ function IO.getSongs(customDraw, bg, glow)
             local songLine = ""
             local mapLines = {}
 
-            local button = Classes.gui_Button.new(bg)
+            local button = Classes.gui_GuiElement.newButton(bg)
                 button.draw = customDraw
                 button.glow = 0.5; button.glowImage = glow
                 button.maps = {}; button.bpmTracker = {{0,1}, {0,0}} -- first values held
