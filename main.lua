@@ -1,6 +1,7 @@
 -- hello :)
 
 math.randomseed(os.time())
+math.clamp = function(x, min, max) return x<min and min or x>max and max or x end
 
 _G.Classes = {} local Classes = Classes
 _G.Libs = {} local Libs = Libs
@@ -74,12 +75,9 @@ end
 
 
 _G.activeScene = 0
-local testButton
 ---- test functions
 function testLoad()
-    _G.activeScene = Classes.StartMenuScene.new()
-    testButton = gui_GuiElement.newButton()
-    print(testButton.dampening)
+    _G.activeScene = Classes.TestScene.new()
 end
 
 
@@ -94,7 +92,7 @@ end
 
 function love.load()
     local classes = {
-        "GameScene", "EmptyScene", "StartMenuScene", "MapSelectScene",
+        "GameScene", "TestScene", "StartMenuScene", "MapSelectScene",
         "editor/Field", "game/Field",
         "game/Note", "game/Piece",
         "game/Song",

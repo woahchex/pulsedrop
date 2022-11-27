@@ -48,8 +48,13 @@ function love.mousepressed(x, y, button, istouch, presses)
     Mouse.y = y
     Mouse.dragStart.x = x
     Mouse.dragStart.y = y
+    Mouse.dragging = true
     Mouse.isTouchInput = istouch
     Mouse.doubleClicked = presses == 2
+end
+
+function love.mousereleased(x, y, button, istouch, presses)
+    Mouse.dragging = false
 end
 
 function love.wheelmoved(x, y)

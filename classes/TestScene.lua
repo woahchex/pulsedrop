@@ -1,6 +1,4 @@
---[[
-    Editor Scenes run at a base 1280x720 resolution, scaled linearly*
-]]
+local dimensions = _G.SIZE
 local Scene Scene = {
     -- This is the prototype instance for an editor scene object.
     prototype = {
@@ -13,11 +11,12 @@ local Scene Scene = {
         end,
 
         draw = function(self)
-            
+            self.testSlider:draw()
+            print(self.testSlider:getSelection())
         end,
 
-        update = function(self)
-            
+        update = function(self, dt)
+            self.testSlider:update(dt)
         end
     },
 
@@ -30,9 +29,14 @@ Scene.__index = Scene.prototype
 ----- Asset loading bit
 local loadedAssets = false
 local function loadAssets()
-    if not loadedAssets then
-        loadedAssets = true
-        -- load scene assets into memory (Scene.assets{})
+    if loadedAssets then return end
+    local asset = Asset
+    loadedAssets = true
+    for _, path in ipairs({
+        "mainpath/slider_body.png",
+        "mainpath/slider_cursor.png"
+    }) do
+        asset.loadImage(path)
     end
 end
 
@@ -47,6 +51,9 @@ function Scene.new()
 
     -- load related assets, if applicable
     loadAssets()
+
+    newScene.testSlider = Classes.gui_GuiElement.newSelectionSlider(Asset.image.slider_body, Asset.image.slider_cursor, {"Item1", "Item2", "Item3", "Item4"}, dimensions[1]/2, dimensions[2]/2, 400, 40, 0.5, 0.5)
+
 
     return newScene
 end
