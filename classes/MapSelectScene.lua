@@ -81,7 +81,7 @@ local Scene Scene = {
             end
             
 
-            hat:play()
+            --hat:play()
         end,
 
         updateMapPreview = function(self)
@@ -421,7 +421,7 @@ function Scene.new()
     newScene.transitionCells = {{0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}}
     newScene.mapList = IO.getSongs( customDraw, asset.image.map_select_song_bg, asset.image.map_select_song_glow ) -- KEEP THIS LINE
     newScene.loadedBackground = asset.image.main_menu_default_background
-
+    newScene.selectedSong = math.random(1, #newScene.mapList)
     newScene.particleLayer1 = Classes.gui_Particle.newContainer()
 
     return newScene

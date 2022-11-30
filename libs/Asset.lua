@@ -40,4 +40,6 @@ end
     Asset.sound[path] = love.audio.newSource(path)
 end]]
 
+Asset.loadImage("mainpath/empty.png")
+
 return Asset

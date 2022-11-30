@@ -12,7 +12,6 @@ local Scene Scene = {
 
         draw = function(self)
             self.testSlider:draw()
-            print(self.testSlider:getSelection())
         end,
 
         update = function(self, dt)
@@ -34,7 +33,9 @@ local function loadAssets()
     loadedAssets = true
     for _, path in ipairs({
         "mainpath/slider_body.png",
-        "mainpath/slider_cursor.png"
+        "mainpath/slider_cursor.png",
+        "mainpath/checkbox_background.png",
+        "mainpath/checkbox_cursor.png"
     }) do
         asset.loadImage(path)
     end
@@ -52,8 +53,7 @@ function Scene.new()
     -- load related assets, if applicable
     loadAssets()
 
-    newScene.testSlider = Classes.gui_GuiElement.newSelectionSlider(Asset.image.slider_body, Asset.image.slider_cursor, {"Item1", "Item2", "Item3", "Item4"}, dimensions[1]/2, dimensions[2]/2, 400, 40, 0.5, 0.5)
-
+    newScene.testSlider = Classes.gui_GuiElement.newSelectionBox(Asset.image.empty, Asset.image.checkbox_background, Asset.image.checkbox_cursor, {"A", "B", "C", "D"}, dimensions[1]/2, dimensions[2]/2, 400, 400, 6, 3, 0.5, 0.5, nil, true)
 
     return newScene
 end
