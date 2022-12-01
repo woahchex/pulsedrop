@@ -1,20 +1,15 @@
 -- hello :)
 
-math.randomseed(os.time())
-math.clamp = function(x, min, max) return x<min and min or x>max and max or x end
 
 _G.Classes = {} local Classes = Classes
 _G.Libs = {} local Libs = Libs
 _G.SIZE = {love.graphics.getDimensions()}
-
-_G.moonshine = false
 
 local fps = 0
 local FRAMELIMIT = 144
 local frameTime = 0
 
 require("assets.design.HelperFunctions")
-
 
 _G.activeScene = 0
 ---- test functions

@@ -5,8 +5,17 @@ local dimensions = _G.SIZE
 local GuiElement = {
     elements = {},
 
+    activeTextbox = nil,
+
     __global = true
 }
+
+
+function GuiElement.newCharacter( t )
+    if GuiElement.activeTextbox then
+        GuiElement.activeTextbox:newCharacter( t )
+    end
+end
 
 -- prototype GuiElement
 GuiElement.__index = {
@@ -355,6 +364,125 @@ function GuiElement.newSelectionBox(background, checkBackground, cursor, selecti
     end 
 
     return newSelectionBox
+end
+
+------------------------- Textbox (ugh) ----------------------------
+local keyboard = Keyboard
+GuiElement.elements.Textbox = {
+    __index = setmetatable({
+        text = "",
+        defaultText = "example",
+        textSize = 0.8,
+        maxLength = 1, -- 0.0 - 1.0
+        textColor = {1,1,1,1},
+        align = "CENTER",
+        cursorTime = 0,
+        blinkRate = 1,
+        backspaceThreshold = 0.5,
+        backspaceRepeatRate = 0.05,
+        backspaceProgress = 0,
+        allowedChars = "NUMBER", -- ALL, NUMBER
+        minValue = 0, ---math.huge,
+        maxValue = 100 --math.huge
+    }, GuiElement),
+
+    charSets = {
+        ALL = ExistList(" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.!?@#$%^&*()[]{}-=_+~<>;:'\""),
+        NUMBER = ExistList("0123456789.-")
+    }
+}
+local Textbox = GuiElement.elements.Textbox
+
+-- instance methods
+function Textbox.__index:update(dt)
+    if mouse.clicked then
+        if self:getHover() then
+            -- textbox was selected
+            GuiElement.activeTextbox = self
+        elseif self == GuiElement.activeTextbox then
+            -- textbox was deselected
+            GuiElement.activeTextbox = nil
+            self.cursorTime = 0
+            if self.allowedChars == "NUMBER" then
+                self.text = tostring(math.clamp(tonumber(self.text) or 0, self.minValue, self.maxValue))
+            end
+        end
+    end
+
+    if self == GuiElement.activeTextbox then
+        self.cursorTime = self.cursorTime + dt
+        
+        if keyboard.justPressed.backspace then self:backspace() end
+
+        if keyboard.timeDown.backspace > self.backspaceThreshold then
+            local newProgress = keyboard.timeDown.backspace % self.backspaceRepeatRate
+            if newProgress < self.backspaceProgress then
+                self:backspace()
+            end
+            self.backspaceProgress = newProgress
+        end
+    end
+end
+
+function Textbox.__index:draw()
+    local width, height = dimensions[1], dimensions[2]
+    local ofsX, ofsY = self.sx * self.ox, self.sy * self.oy
+    gpush()
+        setColor(self.color[1], self.color[2], self.color[3], self.color[4] or 1)
+        draw(self.image, self.x, self.y, 0, self.sx, self.sy, self.ox, self.oy)
+    
+        local blinkRatio = self.cursorTime % self.blinkRate
+
+        local displayText = (blinkRatio < self.blinkRate/2 and GuiElement.activeTextbox == self) and self.text .. "|" or self.text
+
+        if self.align == "LEFT" then
+            gprint(displayText, self.x + self.sy*(1-self.textSize)/2 - ofsX, self.y + self.sy/2 - ofsY, 0, nil, self.sy*self.textSize, 0, 0.5)
+            if #self.text == 0 then
+                setColor(self.textColor[1], self.textColor[2], self.textColor[3], (self.textColor[4] or 1)/2)
+                gprint(self.defaultText, self.x + self.sy*(1-self.textSize)/2 - ofsX, self.y + self.sy/2 - ofsY, 0, nil, self.sy*self.textSize, 0, 0.5)
+            end
+        elseif self.align == "RIGHT" then
+            gprint(displayText, self.x + self.sx - self.sy*(1-self.textSize)/2 - ofsX, self.y + self.sy/2 - ofsY, 0, nil, self.sy*self.textSize, 1, 0.5)
+            if #self.text == 0 then
+                setColor(self.textColor[1], self.textColor[2], self.textColor[3], (self.textColor[4] or 1)/2)
+                gprint(self.defaultText, self.x + self.sx - self.sy*(1-self.textSize)/2 - ofsX, self.y + self.sy/2 - ofsY, 0, nil, self.sy*self.textSize, 1, 0.5)
+            end
+        elseif self.align == "CENTER" then
+            gprint(displayText, self.x + self.sx/2 - ofsX, self.y + self.sy/2 - ofsY, 0, nil, self.sy*self.textSize, 0.5, 0.5)            
+            if #self.text == 0 then
+                setColor(self.textColor[1], self.textColor[2], self.textColor[3], (self.textColor[4] or 1)/2)
+                gprint(self.defaultText, self.x + self.sx/2 - ofsX, self.y + self.sy/2 - ofsY, 0, nil, self.sy*self.textSize, 0.5, 0.5)            
+            end
+        end
+    gpop()
+end
+
+function Textbox.__index:newCharacter( c )
+    local newText = self.text .. c
+    local length = getTextWidth(newText) / getTextHeight() * (self.sy*self.textSize) / self.maxLength
+    local numberPass = (self.allowedChars ~= "NUMBER" or tonumber(newText)) or newText == "-"
+
+    if numberPass and Textbox.charSets[self.allowedChars] and Textbox.charSets[self.allowedChars][c] and length < self.sx - self.sy*(1-self.textSize) then
+        self.text = newText
+        self.cursorTime = 0
+    end
+end
+
+function Textbox.__index:backspace()
+    self.text = self.text:sub(1, #self.text-1)
+    self.cursorTime = 0
+end
+
+function GuiElement.newTextbox(image, defaultText, x, y, sx, sy, ox, oy, color)
+    local newTextbox = setmetatable({
+        image = image, color = color;
+        x = x, y = y;
+        sx = sx, sy = sy;
+        ox = ox, oy = oy;
+        text = defaultText
+    }, GuiElement.elements.Textbox)
+
+    return newTextbox
 end
 
 return GuiElement

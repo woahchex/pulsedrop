@@ -49,4 +49,8 @@ function love.keyreleased(key, scanCode, isRepeat)
     Keyboard.timeDown[key] = nil
 end
 
+function love.textinput( t )
+    Classes.gui_GuiElement.newCharacter(t)
+end
+
 return Keyboard

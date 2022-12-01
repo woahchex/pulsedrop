@@ -11,11 +11,11 @@ local Scene Scene = {
         end,
 
         draw = function(self)
-            self.testSlider:draw()
+            self.testElement:draw()
         end,
 
         update = function(self, dt)
-            self.testSlider:update(dt)
+            self.testElement:update(dt)
         end
     },
 
@@ -53,7 +53,8 @@ function Scene.new()
     -- load related assets, if applicable
     loadAssets()
 
-    newScene.testSlider = Classes.gui_GuiElement.newSelectionBox(Asset.image.empty, Asset.image.checkbox_background, Asset.image.checkbox_cursor, {"A", "B", "C", "D"}, dimensions[1]/2, dimensions[2]/2, 400, 400, 6, 3, 0.5, 0.5, nil, true)
+    --newScene.testElement = Classes.gui_GuiElement.newSelectionBox(Asset.image.empty, Asset.image.checkbox_background, Asset.image.checkbox_cursor, {"A", "B", "C", "D"}, dimensions[1]/2, dimensions[2]/2, 400, 400, 6, 3, 0.5, 0.5, nil, true)
+    newScene.testElement = Classes.gui_GuiElement.newTextbox(Asset.image.slider_body, "", dimensions[1]/2, dimensions[2]/2, 400, 20, 0.5, 0.5)
 
     return newScene
 end
