@@ -81,7 +81,7 @@ local Scene Scene = {
             end
             
 
-            --hat:play()
+            hat:play()
         end,
 
         updateMapPreview = function(self)

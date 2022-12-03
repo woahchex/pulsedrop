@@ -62,6 +62,62 @@ function GuiElement.new(image, x, y, sx, sy, ox, oy, color)
     return newElement
 end
 
+----------------- Container -------------------
+GuiElement.elements.Container = {
+    __index = setmetatable({
+        elements = {},
+        onScreen = true
+    }, GuiElement)
+}
+local Container = GuiElement.elements.Container
+
+-- instance methods
+function Container.__index:update(dt)
+    if self.onScreen then
+        for _, element in ipairs(self.elements) do
+            element:update(dt)
+        end       
+    end
+end
+
+local clamp = math.clamp
+function Container.__index:draw()
+    local width, height = dimensions[1], dimensions[2]
+    
+    -- calculate if the body is onscreen
+    local tlx, tly = self.x - self.sx * self.ox, self.y - self.sy * self.oy
+    local brx, bry = self.x + self.sx * (1-self.ox), self.y + self.sy * (1-self.oy)
+    self.onScreen = (clamp(tlx, 0, width) == tlx and clamp(tly, 0, height) == tly) or (clamp(brx, 0, width) == brx and clamp(bry, 0, height) == bry)
+
+    if self.onScreen then
+        print("RENDERING")
+
+        gpush()
+            setColor(self.color[1], self.color[2], self.color[3], self.color[4] or 1)
+            draw(self.image, self.x, self.y, 0, self.sx, self.sy, self.ox, self.oy)
+        gpop()
+        for _, element in ipairs(self.elements) do
+            element:draw()
+        end
+    end
+end
+
+function Container.__index:addElement( e )
+    self.elements[#self.elements+1] = e
+end
+
+function GuiElement.newContainer(image, x, y, sx, sy, ox, oy, color)
+    local newContainer = setmetatable({
+        image = image, color = color;
+        x = x, y = y;
+        sx = sx, sy = sy;
+        ox = ox, oy = oy;
+        elements = {}
+    }, GuiElement.elements.Container)
+
+    return newContainer
+end
+
 ----------------- Button -------------------
 GuiElement.elements.Button = {
     __index = setmetatable({
@@ -233,7 +289,7 @@ GuiElement.elements.SelectionBox = {
         padX = 50, -- pixels
         padY = 50, -- pixels
         textScale = 0.5,
-        textPosition = "CENTER",
+        align = "CENTER",
 
         multiSelect = false,
 
@@ -282,15 +338,15 @@ function SelectionBox.__index:draw()
                 draw(checkBox:getCursor(), px, py, 0, self.checkScale, self.checkScale, 0.5, 0.5)
             end
 
-            if self.textPosition == "RIGHT" then
+            if self.align == "RIGHT" then
                 gprint(checkBox:getText(), px+self.checkScale/1.5, py, 0, nil, self.checkScale*self.textScale, 0, 0.5)
-            elseif self.textPosition == "LEFT"  then
+            elseif self.align == "LEFT"  then
                 gprint(checkBox:getText(), px-self.checkScale/1.5, py, 0, nil, self.checkScale*self.textScale, 1, 0.5)                
-            elseif self.textPosition == "TOP" then
+            elseif self.align == "TOP" then
                 gprint(checkBox:getText(), px, py-self.checkScale/1.5, 0, nil, self.checkScale*self.textScale, 0.5, 1)
-            elseif self.textPosition == "BOTTOM" then
+            elseif self.align == "BOTTOM" then
                 gprint(checkBox:getText(), px, py+self.checkScale/1.5, 0, nil, self.checkScale*self.textScale, 0.5, 0)
-            elseif self.textPosition == "CENTER" then
+            elseif self.align == "CENTER" then
                 gprint(checkBox:getText(), px, py, 0, nil, self.checkScale*self.textScale, 0.5, 0.5)
             end
         end
@@ -381,7 +437,7 @@ GuiElement.elements.Textbox = {
         backspaceThreshold = 0.5,
         backspaceRepeatRate = 0.05,
         backspaceProgress = 0,
-        allowedChars = "NUMBER", -- ALL, NUMBER
+        allowedChars = "ALL", -- ALL, NUMBER
         minValue = 0, ---math.huge,
         maxValue = 100 --math.huge
     }, GuiElement),
@@ -434,6 +490,8 @@ function Textbox.__index:draw()
         local blinkRatio = self.cursorTime % self.blinkRate
 
         local displayText = (blinkRatio < self.blinkRate/2 and GuiElement.activeTextbox == self) and self.text .. "|" or self.text
+
+        setColor(self.textColor[1], self.textColor[2], self.textColor[3], self.textColor[4] or 1)
 
         if self.align == "LEFT" then
             gprint(displayText, self.x + self.sy*(1-self.textSize)/2 - ofsX, self.y + self.sy/2 - ofsY, 0, nil, self.sy*self.textSize, 0, 0.5)

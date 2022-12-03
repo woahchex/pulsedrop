@@ -53,8 +53,13 @@ function Scene.new()
     -- load related assets, if applicable
     loadAssets()
 
-    --newScene.testElement = Classes.gui_GuiElement.newSelectionBox(Asset.image.empty, Asset.image.checkbox_background, Asset.image.checkbox_cursor, {"A", "B", "C", "D"}, dimensions[1]/2, dimensions[2]/2, 400, 400, 6, 3, 0.5, 0.5, nil, true)
-    newScene.testElement = Classes.gui_GuiElement.newTextbox(Asset.image.slider_body, "", dimensions[1]/2, dimensions[2]/2, 400, 20, 0.5, 0.5)
+    --
+    newScene.testElement = Classes.gui_GuiElement.newContainer(Asset.image.slider_body, dimensions[1]/2, dimensions[2]/2, dimensions[1]/2, dimensions[2]/2, 0.5, 0.5)
+    newScene.testElement:addElement( Classes.gui_GuiElement.newSelectionBox(Asset.image.empty, Asset.image.checkbox_background, Asset.image.checkbox_cursor, {"A", "B", "C", "D"}, dimensions[1]/1.75, dimensions[2]/1.75, 400, 400, 6, 3, 0.5, 0.5, nil, true) )
+    newScene.testElement:addElement( Classes.gui_GuiElement.newTextbox(Asset.image.slider_body, "", dimensions[1]/1.75, dimensions[2]/2, dimensions[1]/3, dimensions[2]/20, 0.5, 0.5, {0, 0, 0}) )
+    newScene.testElement.elements[2].textSize = 0.6
+    newScene.testElement:addElement( Classes.gui_GuiElement.newSelectionBox(Asset.image.empty, Asset.image.checkbox_background, Asset.image.checkbox_cursor, {"Generic Checkbox"}, dimensions[1]/1.25, dimensions[2]/1.25, dimensions[1]/10, dimensions[2]/10, 1, 1, 0.5, 0.5, nil, true) )
+    newScene.testElement.elements[3].align = "RIGHT"
 
     return newScene
 end
