@@ -1,9 +1,11 @@
+local dimensions = _G.SIZE
 -- negative sx and sy values do default behavior; positive values are pixel measurements
 -- ox and oy values between 0 and 1 will be treated as a ratio to image size (anchor point)
 _G.drawImage = function(drawable, x, y, r, sx, sy, ox, oy, kx, ky, ignoreSnap)
     love.graphics.draw(
         drawable,
-        ignoreSnap and (x or 0) or math.floor(x or 0), ignoreSnap and (y or 0) or math.floor(y or 0), r,
+        ignoreSnap and (x or 0) or math.floor(x or 0), 
+        ignoreSnap and (y or 0) or math.floor(y or 0), r,
         sx and (sx < 0 and -sx or 1 / drawable:getWidth() * sx),
         sy and (sy < 0 and -sy or 1 / drawable:getHeight() * sy),
         ox and (ox <= 1 and drawable:getWidth() * ox or ox),

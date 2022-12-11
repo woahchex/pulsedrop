@@ -226,7 +226,7 @@ local Scene Scene = {
             end
 
             -- check inputs
-            if math.abs(Mouse.scrollDirection) > 0 then
+            if math.abs(Mouse.scrollDirection) > 0 and not (Settings.active and Mouse.x <= dimensions[2]/9*8) then
                 self.timeSinceSelectionChanged = 0
                 if Mouse.x < dimensions[1]/2 + dimensions[2]/10 then
                     self.selectedSong = self.selectedSong + Mouse.scrollDirection

@@ -14,7 +14,7 @@ require("assets.design.HelperFunctions")
 _G.activeScene = 0
 ---- test functions
 function testLoad()
-    _G.activeScene = Classes.TestScene.new()
+    _G.activeScene = Classes.StartMenuScene.new()
 end
 
 
@@ -35,7 +35,7 @@ function love.load()
         "game/Song",
         "gui/GuiElement", "gui/Logo", "gui/Particle"
     }
-    local libs = {"IO", "Mouse", "Keyboard", "Gamepad", "Asset", "Tetris", "Source2"}
+    local libs = {"IO", "Mouse", "Keyboard", "Gamepad", "Asset", "Tetris", "Source2", "Settings"}
 
 
     for _, lib in ipairs(libs) do
@@ -55,7 +55,7 @@ function love.load()
         end
     end
 
-    IO.init()
+    IO.init(); Settings.init();
     Asset.loadFont("skinpath/font.ttf")
 
     testLoad()
@@ -113,6 +113,11 @@ end
 
 function love.draw()
     _G.SIZE[1], _G.SIZE[2] = love.graphics.getDimensions()
+
+    if _G.SIZE[1] < _G.SIZE[2] then
+        love.window.setMode(_G.SIZE[2], _G.SIZE[2], {resizable=true})
+    end
+
     -- Make sure every class which has a draw function draws
         for name, lib in pairs(Libs) do
             if lib.draw then
@@ -125,6 +130,9 @@ function love.draw()
             class.draw()
         end
     end
+
+    -- settings stuff
+    Settings.sDraw()
 
     -- debug info
     love.graphics.push()

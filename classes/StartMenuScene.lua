@@ -101,12 +101,17 @@ local Scene Scene = {
             else
                 self.optionsButton.goalSize = 1
             end
+            
+
             self.optionsButton.currentSize = self.optionsButton:getClick() and 0.9 or self.optionsButton.currentSize
             self.optionsButton:update(dt)
             self.optionsButton.x = width/2+height*0.3
             self.optionsButton.y = height*0.6
             self.optionsButton.sx = height/5
             self.optionsButton.sy = height/5
+            if self.optionsButton:getClick() and not self.inTransition then
+                Settings.toggle()
+            end
 
             if self.startButton:getClick() and not self.inTransition then
                 self.inTransition = true

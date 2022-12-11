@@ -31,7 +31,7 @@ function GuiElement.__index:getHover()
     local mx, my = mouse.getPosition()
     local tx, ty = self.x - (self.sx * self.ox), self.y - (self.sy * self.oy)
     local bx, by = tx + self.sx, ty + self.sy
-    return mx >= tx and my >= ty and mx <= bx and my <= by
+    return mx >= tx and my >= ty and mx <= bx and my <= by and (not (Settings.active and mx <= dimensions[2]/9*8) or self.isSetting)
 end
 
 function GuiElement.__index:getClick()
@@ -308,7 +308,7 @@ function SelectionBox.__index:update(dt)
             local x = self.x + self.padX + (self.sx-2*self.padX)*checkBox:getX() - ofsX
             local y = self.y + self.padY + (self.sy-2*self.padY)*checkBox:getY() - ofsY
 
-            if abs(mouse.x - x) <= self.checkScale/2 and abs(mouse.y - y) <= self.checkScale/2 then
+            if abs(mouse.x - x) <= self.checkScale/2 and abs(mouse.y - y) <= self.checkScale/2 and (not (Settings.active and mouse.x <= dimensions[2]/9*8) or self.isSetting) then
                 if self.multiSelect then
                     -- checkbox
                     self.selectedBoxes[i] = not self.selectedBoxes[i] or nil
