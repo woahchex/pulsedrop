@@ -60,6 +60,7 @@ function Scene.new()
     newScene.testElement.elements[2].textSize = 0.6
     newScene.testElement:addElement( Classes.gui_GuiElement.newSelectionBox(Asset.image.empty, Asset.image.checkbox_background, Asset.image.checkbox_cursor, {"Generic Checkbox"}, dimensions[1]/1.25, dimensions[2]/1.25, dimensions[1]/10, dimensions[2]/10, 1, 1, 0.5, 0.5, nil, true) )
     newScene.testElement.elements[3].align = "RIGHT"
+    newScene.testElement.elements[3].multiSelect = true
 
     return newScene
 end

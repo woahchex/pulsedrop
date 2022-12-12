@@ -159,9 +159,9 @@ local Scene Scene = {
                     for i = clamp(self.selectedDifficulty - 3, 1, #self.mapList[self.selectedSong].maps), clamp(self.selectedDifficulty + 3, 1, #self.mapList[self.selectedSong].maps) do
                         local map = self.mapList[self.selectedSong].maps[i]
                         setColor(0,0,0,.5)
-                        gprint("       " .. map[2], width/2+height/10, height*.305, d45*(i-1) - d45*(self.selectedDifficultyTween-1), nil, height/25, 0, 0.5)
+                        gprint("         " .. map[2], width/2+height/10, height*.305, d45*(i-1) - d45*(self.selectedDifficultyTween-1), nil, height/25, 0, 0.5)
                         setColor(1,1,1,1)
-                        gprint("       " .. map[2], width/2+height/10, height*.3, d45*(i-1) - d45*(self.selectedDifficultyTween-1), nil, height/25, 0, 0.5)
+                        gprint("         " .. map[2], width/2+height/10, height*.3, d45*(i-1) - d45*(self.selectedDifficultyTween-1), nil, height/25, 0, 0.5)
                     end
                 end
             gpop(); gpush()
@@ -195,7 +195,13 @@ local Scene Scene = {
 
                 -- draw map info
                 local durationString = self.loadedSong and generateTimestamp(self.mapList[self.selectedSong].maps[self.selectedDifficulty][10]-self.mapList[self.selectedSong].maps[self.selectedDifficulty][9], false, true) or "??:??"
-                gprint(self.mapList[self.selectedSong].songName, width/2+height*0.115, height*.675, 0, nil, height*.035, 0, 0)
+                
+                self.songTitleHolder.text = self.mapList[self.selectedSong].songName
+                self.songTitleHolder.x, self.songTitleHolder.y = width/2+height*0.115, height*.675
+                self.songTitleHolder.sy = height*0.035
+                self.songTitleHolder.sx = self.songTitleHolder.sy * 10
+                self.songTitleHolder:draw()
+                --gprint(self.mapList[self.selectedSong].songName, width/2+height*0.115, height*.675, 0, nil, height*.035, 0, 0)
                 gprint("Duration: ".. durationString, width/2+height*0.115, height*.8, 0, nil, height*.025, 0, 0)
                 gprint("Approach Rate: "..(math.floor(self.mapList[self.selectedSong].maps[self.selectedDifficulty][5])).." sec", width/2+height*0.115, height*.825, 0, nil, height*.025, 0, 0)
                 gprint("Timing Pity: "..(math.floor(self.mapList[self.selectedSong].maps[self.selectedDifficulty][4]*100)).."%", width/2+height*0.115, height*.85, 0, nil, height*.025, 0, 0)
@@ -226,7 +232,7 @@ local Scene Scene = {
             end
 
             -- check inputs
-            if math.abs(Mouse.scrollDirection) > 0 and not (Settings.active and Mouse.x <= dimensions[2]/9*8) then
+            if math.abs(Mouse.scrollDirection) > 0 and not (Settings.active) then
                 self.timeSinceSelectionChanged = 0
                 if Mouse.x < dimensions[1]/2 + dimensions[2]/10 then
                     self.selectedSong = self.selectedSong + Mouse.scrollDirection
@@ -285,6 +291,8 @@ local Scene Scene = {
             if self.loadedSong and not self.loadedSong:isPlaying() then
                 self:updateMapPreview()
             end
+
+            self.songTitleHolder:update(dt)
             
             if math.abs(self.selectedSongTween - self.selectedSong) > 0.001 then
                 self.selectedSongTween = (self.selectedSongTween*dampening + self.selectedSong)/(dampening+1)
@@ -384,7 +392,7 @@ local function customDraw(self, pulseSize)
     gpush()
         setColor(1,1,1,1)
         draw(self.image, self.x, self.y, 0, self.sx*self.currentSize, self.sy*self.currentSize, self.ox, self.oy)    
-        gprint(self.songName or "", self.x + (self.sx*self.currentSize/20), self.y + (self.sx*self.currentSize/20), 0, nil, self.sy*self.currentSize*0.15)
+        gprint(self.displayTitle or "", self.x + (self.sx*self.currentSize/20), self.y + (self.sx*self.currentSize/20), 0, nil, self.sy*self.currentSize*0.15)
     gpop(); gpush()
         setColor(1,1,1,0.5)
         gprint("   " .. (self.artist or "") .. "", self.x + (self.sx*self.currentSize/20), self.y + (self.sx*self.currentSize/8), 0, nil, self.sy*self.currentSize*0.125)
@@ -423,6 +431,23 @@ function Scene.new()
     newScene.loadedBackground = asset.image.main_menu_default_background
     newScene.selectedSong = math.random(1, #newScene.mapList)
     newScene.particleLayer1 = Classes.gui_Particle.newContainer()
+    newScene.songTitleHolder = Classes.gui_GuiElement.newScrollingText(".", 0, 0, 10, 1)
+    newScene.songTitleHolder.alwaysActive = true
+
+    local getWidth = _G.getTextWidth
+    local height = _G.getTextHeight()
+    -- set up map textboxes based on text length
+    for _, button in pairs(newScene.mapList) do
+        local text, check = button.songName, false
+
+        while getWidth(text)/height > 11.5 do
+            check = true
+            text = text:sub(1,#text-1)
+        end
+
+        button.displayTitle = text .. (check and "..." or "")
+    end
+
 
     return newScene
 end

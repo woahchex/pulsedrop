@@ -31,7 +31,7 @@ function GuiElement.__index:getHover()
     local mx, my = mouse.getPosition()
     local tx, ty = self.x - (self.sx * self.ox), self.y - (self.sy * self.oy)
     local bx, by = tx + self.sx, ty + self.sy
-    return mx >= tx and my >= ty and mx <= bx and my <= by and (not (Settings.active and mx <= dimensions[2]/9*8) or self.isSetting)
+    return mx >= tx and my >= ty and mx <= bx and my <= by and (not (Settings.active) or self.isSetting)
 end
 
 function GuiElement.__index:getClick()
@@ -73,15 +73,15 @@ local Container = GuiElement.elements.Container
 
 -- instance methods
 function Container.__index:update(dt)
-    if self.onScreen then
-        for _, element in ipairs(self.elements) do
+    if self.onScreen or self.isSetting then
+        for x, element in pairs(self.elements) do
             element:update(dt)
         end       
     end
 end
 
 local clamp = math.clamp
-function Container.__index:draw()
+function Container.__index:draw(ignoreScreen)
     local width, height = dimensions[1], dimensions[2]
     
     -- calculate if the body is onscreen
@@ -89,14 +89,13 @@ function Container.__index:draw()
     local brx, bry = self.x + self.sx * (1-self.ox), self.y + self.sy * (1-self.oy)
     self.onScreen = (clamp(tlx, 0, width) == tlx and clamp(tly, 0, height) == tly) or (clamp(brx, 0, width) == brx and clamp(bry, 0, height) == bry)
 
-    if self.onScreen then
-        print("RENDERING")
+    if self.onScreen or ignoreScreen then
 
         gpush()
             setColor(self.color[1], self.color[2], self.color[3], self.color[4] or 1)
             draw(self.image, self.x, self.y, 0, self.sx, self.sy, self.ox, self.oy)
         gpop()
-        for _, element in ipairs(self.elements) do
+        for _, element in pairs(self.elements) do
             element:draw()
         end
     end
@@ -151,9 +150,10 @@ GuiElement.elements.Slider = {
         cursorPosition = 0.5, -- 0.0 - 1.0
         padding = 15,       -- pixels,
         selected = false,
-        tlText = "TLEFT", tText = "TOP", trText = "TRIGHT";
-        blText = "BLEFT", bText = "BOTTOM", brText = "BRIGHT";
-
+        tlText = "", tText = "", trText = "";
+        blText = "", bText = "", brText = "";
+        lText = "", rText = "";
+        textScale = 0.55,
         cursor = nil        
     }, GuiElement)
 }
@@ -185,14 +185,16 @@ function Slider.__index:draw()
     gpush()
         setColor(self.color[1], self.color[2], self.color[3], self.color[4] or 1)
         draw(self.image, self.x, self.y, 0, self.sx, self.sy, self.ox, self.oy)
-        draw(self.cursor, self.x + self.padding + (self.sx - self.padding*2)*self.cursorPosition - ofsX, self.y+self.sy/2 - ofsY, 0, self.sy, self.sy, 0.5,0.5)
+        draw(self.cursor, self.x + self.padding + (self.sx - self.padding*2)*self.cursorPosition - ofsX, self.y+self.sy/2 - ofsY, 0, self.sy, self.sy, 0.5,0.5, 0, 0, true)
         
-        gprint(self.tlText, self.x - ofsX, self.y - ofsY, 0, nil, self.sy/2, 0, 1)
-        gprint(self.trText, self.x + self.sx - ofsX, self.y - ofsY, 0, nil, self.sy/2, 1, 1)
-        gprint(self.tText, self.x + self.sx/2 - ofsX, self.y - ofsY, 0, nil, self.sy/2, 0.5, 1)
-        gprint(self.blText, self.x - ofsX, self.y + self.sy - ofsY, 0, nil, self.sy/2, 0, 0)
-        gprint(self.brText, self.x + self.sx - ofsX, self.y + self.sy - ofsY, 0, nil, self.sy/2, 1, 0)
-        gprint(self.bText, self.x + self.sx/2 - ofsX, self.y + self.sy - ofsY, 0, nil, self.sy/2, 0.5, 0)
+        gprint(self.tlText, self.x - ofsX, self.y - ofsY, 0, nil, self.sy*self.textScale, 0, 1)
+        gprint(self.trText, self.x + self.sx - ofsX, self.y - ofsY, 0, nil, self.sy*self.textScale, 1, 1)
+        gprint(self.tText, self.x + self.sx/2 - ofsX, self.y - ofsY, 0, nil, self.sy*self.textScale, 0.5, 1)
+        gprint(self.blText, self.x - ofsX, self.y + self.sy - ofsY, 0, nil, self.sy*self.textScale, 0, 0)
+        gprint(self.brText, self.x + self.sx - ofsX, self.y + self.sy - ofsY, 0, nil, self.sy*self.textScale, 1, 0)
+        gprint(self.bText, self.x + self.sx/2 - ofsX, self.y + self.sy - ofsY, 0, nil, self.sy*self.textScale, 0.5, 0)
+        gprint(self.lText .. " ", self.x - ofsX, self.y + self.sy/2 - ofsY, 0, nil, self.sy*self.textScale, 1, 0.5)
+        gprint(" " .. self.rText, self.x + self.sx - ofsX, self.y + self.sy/2 - ofsY, 0, nil, self.sy*self.textScale, 0, 0.5)
     gpop()
 end
 
@@ -217,8 +219,8 @@ GuiElement.elements.SelectionSlider = {
         selections = {},
         padding = 15,       -- pixels,
         selected = false,
-        tlText = "TLEFT", tText = "TOP", trText = "TRIGHT";
-        blText = "BLEFT", bText = "BOTTOM", brText = "BRIGHT";
+
+        lText = "", rText = "";
 
         cursor = nil        
     }, GuiElement)
@@ -261,6 +263,9 @@ function SelectionSlider.__index:draw()
             gprint(self.selections[i], self.x + self.padding + (self.sx - self.padding*2)*((i-1)/(#self.selections-1)) - ofsX, self.y - ofsY, 0, nil, self.sy/2, 0.5, 1)
         end
 
+        gprint(self.lText .. " ", self.x - ofsX, self.y + self.sy/2 - ofsY, 0, nil, self.sy*self.textScale, 1, 0.5)
+        gprint(" " .. self.rText, self.x + self.sx - ofsX, self.y + self.sy/2 - ofsY, 0, nil, self.sy*self.textScale, 0, 0.5)
+
         gpop()
 end
 
@@ -286,8 +291,8 @@ GuiElement.elements.SelectionBox = {
         cursorSelection = 1,
         selections = {},
         selectedBoxes = {},
-        padX = 50, -- pixels
-        padY = 50, -- pixels
+        padX = 0, -- pixels
+        padY = 0, -- pixels
         textScale = 0.5,
         align = "CENTER",
 
@@ -302,13 +307,14 @@ local SelectionBox = GuiElement.elements.SelectionBox
 
 local abs = math.abs
 function SelectionBox.__index:update(dt)
+    
     if mouse.clicked then
         local ofsX, ofsY = self.ox*self.sx, self.oy*self.sy
         for i, checkBox in ipairs(self.selections) do
             local x = self.x + self.padX + (self.sx-2*self.padX)*checkBox:getX() - ofsX
             local y = self.y + self.padY + (self.sy-2*self.padY)*checkBox:getY() - ofsY
-
-            if abs(mouse.x - x) <= self.checkScale/2 and abs(mouse.y - y) <= self.checkScale/2 and (not (Settings.active and mouse.x <= dimensions[2]/9*8) or self.isSetting) then
+            
+            if abs(mouse.x - x) <= self.checkScale/2 and abs(mouse.y - y) <= self.checkScale/2 and (not (Settings.active) or self.isSetting) then
                 if self.multiSelect then
                     -- checkbox
                     self.selectedBoxes[i] = not self.selectedBoxes[i] or nil
@@ -393,7 +399,7 @@ function GuiElement.newSelectionBox(background, checkBackground, cursor, selecti
         x = x, y = y, sx = sx, sy = sy;
         ox = ox, oy = oy;
         rows = rows, cols = cols;
-        selections = selections or {}
+        selections = selections or {}, selectedBoxes = {}
     }, GuiElement.elements.SelectionBox)
 
     local cRow, cCol = 0, 0
@@ -540,7 +546,72 @@ function GuiElement.newTextbox(image, defaultText, x, y, sx, sy, ox, oy, color)
         text = defaultText
     }, GuiElement.elements.Textbox)
 
+
     return newTextbox
+end
+
+
+------------------------- ScrollingText ----------------------------
+GuiElement.elements.ScrollingText = {
+    __index = setmetatable({
+        progress = 0, 
+        speed = 10,
+        canvasWidth = 0,
+        fontHeight = 0,
+        textRatio = 1,
+        canvas = false,
+        alwaysActive = false
+    }, GuiElement)
+}
+local ScrollingText = GuiElement.elements.ScrollingText
+
+-- instance methods
+function ScrollingText.__index:update(dt)
+    if self.alwaysActive or self:getHover() then
+        self.progress = self.progress + (self.speed/self.textRatio) * dt
+    else
+        self.progress = 0
+    end
+    
+end
+
+local getTextWidth, cos, sqrt = _G.getTextWidth, math.cos, math.sqrt
+local sCos = function(x, b)
+    return sqrt( (1+b*b) / (1+b*b*cos(x)*cos(x)) ) * cos(x);
+end
+
+function ScrollingText.__index:draw()
+    local width, height = dimensions[1], dimensions[2]
+    love.graphics.setCanvas(self.canvas)
+    love.graphics.clear()
+
+    local dist = math.clamp(getTextWidth(self.text) - self.canvasWidth, 0, 99999999)
+    
+    self.textRatio = self.canvas:getWidth()/self.canvas:getHeight()
+
+    gprint(self.text, -(1-sCos(self.progress, 1.5))/2*dist, 0, 0, nil, self.fontHeight, 0, 0)
+    love.graphics.setCanvas()
+
+
+    gpush()
+        setColor(self.color[1], self.color[2], self.color[3], self.color[4] or 1)
+        draw(self.canvas, self.x, self.y, 0, self.sx, self.sy, self.ox, self.oy)
+    gpop()
+end
+
+function GuiElement.newScrollingText(text, x, y, sx, sy, ox, oy, color)
+    local newScrollingText = setmetatable({
+        text = text, color = color;
+        x = x, y = y;
+        sx = sx, sy = sy;
+        ox = ox, oy = oy
+    }, GuiElement.elements.ScrollingText)
+
+    newScrollingText.fontHeight = _G.getTextHeight()
+    newScrollingText.canvasWidth = newScrollingText.fontHeight/sy*sx
+    newScrollingText.canvas = love.graphics.newCanvas(newScrollingText.canvasWidth, newScrollingText.fontHeight)
+
+    return newScrollingText
 end
 
 return GuiElement

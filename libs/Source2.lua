@@ -6,6 +6,7 @@ local Source2 = {
         adjustedTime = 0,
         rawTime = 0,
         midSampleTime = 0,
+        realVolume = 1,
 
         realSource = false,
 
@@ -48,17 +49,18 @@ local Source2 = {
         end,
 
         getVolume = function(self)
-            return self.realSource:getVolume()
+            return self.realVolume
         end,
 
         setVolume = function(self, v)
-            self.realSource:setVolume(v)
+            self.realVolume = v
         end   
     }
 }
 
-
+local settings
 function Source2.update(dt)
+    settings = settings or Settings
     for _, sound in pairs(Source2.instances) do
         if sound.realSource:isPlaying() then
             sound.pitch = sound.realSource:getPitch()
@@ -73,8 +75,8 @@ function Source2.update(dt)
             
             sound.rawTime = rt
             sound.adjustedTime = rt + sound.midSampleTime
-
             
+            sound.realSource:setVolume(sound.realVolume * settings.data.masterVolume * (sound.isSong and settings.data.musicVolume or settings.data.sfxVolume))
         end
     end
 end
@@ -83,6 +85,8 @@ function Source2.new( filename, type )
     type = type or "static"
     local newSource = setmetatable({}, Source2)
     newSource.realSource = love.audio.newSource(filename, type)
+    newSource.isSong = type == "stream"
+    newSource.realSource:setVolume(Settings.data.masterVolume * (newSource.isSong and Settings.data.musicVolume or Settings.data.sfxVolume))
     table.insert(Source2.instances, newSource)
 
     return newSource

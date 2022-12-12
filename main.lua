@@ -1,5 +1,6 @@
 -- hello :)
 
+--love.graphics.setDefaultFilter( "linear", "linear", 1 )
 
 _G.Classes = {} local Classes = Classes
 _G.Libs = {} local Libs = Libs
@@ -35,7 +36,7 @@ function love.load()
         "game/Song",
         "gui/GuiElement", "gui/Logo", "gui/Particle"
     }
-    local libs = {"IO", "Mouse", "Keyboard", "Gamepad", "Asset", "Tetris", "Source2", "Settings"}
+    local libs = {"IO", "Mouse", "Keyboard", "Gamepad", "Asset", "Tetris", "Settings", "Source2"}
 
 
     for _, lib in ipairs(libs) do
@@ -56,7 +57,7 @@ function love.load()
     end
 
     IO.init(); Settings.init();
-    Asset.loadFont("skinpath/font.ttf")
+    Asset.loadFont("skinpath/editor_font.ttf")
 
     testLoad()
 end
@@ -105,7 +106,7 @@ function love.run()
 
         if love.update then love.update(dt) end -- will pass 0 if love.timer is disabled
 
-		if love.timer then love.timer.sleep(0.00) end
+		if love.timer then love.timer.sleep(0.001) end
 	end
 end
 
@@ -137,7 +138,8 @@ function love.draw()
     -- debug info
     love.graphics.push()
     love.graphics.setColor(1,1,1,.5)
-    drawText("" .. tostring(math.floor(fps+0.5)) .. " FPS | " .. math.floor(collectgarbage('count')).."kB", love.graphics.getWidth()-10, love.graphics.getHeight(), 0, nil, 16, 1, 1)
+    fps = love.timer.getFPS()
+    drawText("" .. tostring(math.floor(collectgarbage('count'))) .. "kB | " .. math.floor(fps+0.5).." FPS", love.graphics.getWidth()-10, love.graphics.getHeight(), 0, nil, 16, 1, 1)
     love.graphics.pop()
 
     testDraw()
@@ -163,6 +165,7 @@ function love.update(dt)
             class.update(dt)
         end
     end
+    Settings.sUpdate(dt)
 
     testUpdate(dt)
 
@@ -171,4 +174,5 @@ function love.update(dt)
         postUpdateFunc(dt)
     end
 
+    
 end

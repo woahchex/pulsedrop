@@ -32,7 +32,7 @@ end
 
 function Asset.loadFont(path)
     local pathData = split(path, "/")
-    Asset.currentFont = love.graphics.newFont( path:gsub("skinpath", skinPath):gsub("mainpath", mainPath), 48 )
+    Asset.currentFont = love.graphics.newFont( path:gsub("skinpath", skinPath):gsub("mainpath", mainPath), 128 )
     love.graphics.setFont(Asset.currentFont)
 end
 

@@ -110,6 +110,7 @@ local Scene Scene = {
             self.optionsButton.sx = height/5
             self.optionsButton.sy = height/5
             if self.optionsButton:getClick() and not self.inTransition then
+                Settings.justOpened = true
                 Settings.toggle()
             end
 
