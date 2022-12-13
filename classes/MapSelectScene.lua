@@ -24,6 +24,13 @@ local Scene Scene = {
         transitionCells = {},
         timeSinceSelectionChanged = 0,
 
+        backgroundCanvas = false,
+        backgroundTileRate = 0.6,
+        backgroundTileProgress = 0,
+        currentTilePos = 0,
+        tileFrequency = 7,
+        backgroundTiles = false,
+
         particleLayer1 = false,
 
         loadedSelection = 0,
@@ -63,6 +70,12 @@ local Scene Scene = {
                 dimensions[2]/5, dimensions[2]/5, 
                 .5, .5, 0, 0, 0, 0, dimensions[2]/180, 1, -0.05, 1
             ))
+
+
+            local color = (self.currentTilePos/10-0.5)/6
+            self.backgroundTiles[#self.backgroundTiles+1] = {self.currentTilePos/self.tileFrequency, 1.5, 1, 1, 0, -0.5, 0, 0.085, 50/255+color,30/255+color,102/255+color}
+            self.currentTilePos = (self.currentTilePos + 3) % (self.tileFrequency+1)
+            
 
             local loopSize = math.floor(dimensions[1]/dimensions[2]*3)
             for i = 1, loopSize do
@@ -124,8 +137,20 @@ local Scene Scene = {
         end,
 
         draw = function(self)
-
             local width, height = dimensions[1], dimensions[2]
+
+            -- handle the canvas 
+            love.graphics.setCanvas(self.backgroundCanvas)
+                love.graphics.clear(29/255,19/255,64/255)
+                local csx, csy = self.backgroundCanvas:getDimensions()
+                for _, tile in pairs(self.backgroundTiles) do
+                    love.graphics.setColor(tile[9], tile[10], tile[11])
+
+                    local px, py, d  = csx * tile[1], csy * tile[2], csy / 10 * tile[3]
+                    love.graphics.polygon("fill", {px - d, py, px, py + d, px + d, py, px, py - d})
+                end
+            love.graphics.setCanvas()
+
             gpush()
                 setColor(1,1,1,1)
                 -- first, draw the background image
@@ -170,6 +195,7 @@ local Scene Scene = {
             gpop(); gpush()
                 setColor(1,1,1,1)
                 draw(asset.image.map_select_info_panel, width/2+height/10, height, 0, height*.4, height*.4, 0, 1)
+                draw(self.backgroundCanvas, width/2-height/2, 0, 0, height*.6, height)
                 draw(asset.image.map_select_scroll_background, width/2-height/2, 0, 0, height*.6, height)
                 
                 -- draw the menu map list
@@ -246,7 +272,25 @@ local Scene Scene = {
             end
 
 
-
+            -- update canvas
+            self.backgroundTileProgress = self.backgroundTileProgress + dt
+            if self.backgroundTileProgress >= self.backgroundTileRate then
+                self.backgroundTileProgress = self.backgroundTileProgress - self.backgroundTileRate   -- y  s  sv vx vy     ax ay
+                --self.backgroundTiles[#self.backgroundTiles+1] = {self.currentTilePos/self.tileFrequency, 1, 0, 1, 0, -0.02, 0, 0.02}
+                --self.currentTilePos = (self.currentTilePos + 3) % (self.tileFrequency+1)
+            end
+            for i, tile in pairs(self.backgroundTiles) do
+                tile[1] = tile[1] + tile[5] * dt/2 -- vx 
+                tile[2] = tile[2] + tile[6] * dt/2 -- vy
+                tile[3] = tile[3] + tile[4] * dt/2
+                tile[4] = tile[4] - 0.5 * dt/2
+                tile[5] = tile[5] + tile[7] * dt/2 -- ax
+                tile[6] = tile[6] + tile[8] * dt/2 -- ay
+                
+                if tile[3]<0 then
+                    self.backgroundTiles[i] = nil
+                end
+            end
 
             for i = clamp(self.selectedSong - 3, 1, #self.mapList), clamp(self.selectedSong + 5, 1, #self.mapList) do
                 local button = self.mapList[i]
@@ -433,6 +477,9 @@ function Scene.new()
     newScene.particleLayer1 = Classes.gui_Particle.newContainer()
     newScene.songTitleHolder = Classes.gui_GuiElement.newScrollingText(".", 0, 0, 10, 1)
     newScene.songTitleHolder.alwaysActive = true
+
+    newScene.backgroundCanvas = love.graphics.newCanvas(648, 1080)
+    newScene.backgroundTiles = {}
 
     local getWidth = _G.getTextWidth
     local height = _G.getTextHeight()
