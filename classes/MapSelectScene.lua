@@ -41,6 +41,8 @@ local Scene Scene = {
         adjustedSongTime = 0,
         midSampleTime = 0,
 
+        songTitleHolder = false,
+
         currentBeat = 0,
         currentBPM = 0,
         currentEvent = 1,
@@ -72,7 +74,7 @@ local Scene Scene = {
             ))
 
 
-            local color = (self.currentTilePos/10-0.5)/6
+            local color = (math.random(1,10)/10-0.5)/3
             self.backgroundTiles[#self.backgroundTiles+1] = {self.currentTilePos/self.tileFrequency, 1.5, 1, 1, 0, -0.5, 0, 0.085, 50/255+color,30/255+color,102/255+color}
             self.currentTilePos = (self.currentTilePos + 3) % (self.tileFrequency+1)
             
@@ -112,6 +114,8 @@ local Scene Scene = {
             self.loadedSong:setPitch(1)
             self.loadedSong:play()
             
+            self.songTitleHolder.progress = 0
+
             self.loadedBackground = love.graphics.newImage("maps/" .. selectedSong.folder .. "/" .. selectedSong.bgPath)
 
             if not selectedSong.bpmTracker then
@@ -271,14 +275,6 @@ local Scene Scene = {
                 print("start game")
             end
 
-
-            -- update canvas
-            self.backgroundTileProgress = self.backgroundTileProgress + dt
-            if self.backgroundTileProgress >= self.backgroundTileRate then
-                self.backgroundTileProgress = self.backgroundTileProgress - self.backgroundTileRate   -- y  s  sv vx vy     ax ay
-                --self.backgroundTiles[#self.backgroundTiles+1] = {self.currentTilePos/self.tileFrequency, 1, 0, 1, 0, -0.02, 0, 0.02}
-                --self.currentTilePos = (self.currentTilePos + 3) % (self.tileFrequency+1)
-            end
             for i, tile in pairs(self.backgroundTiles) do
                 tile[1] = tile[1] + tile[5] * dt/2 -- vx 
                 tile[2] = tile[2] + tile[6] * dt/2 -- vy
