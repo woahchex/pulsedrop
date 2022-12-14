@@ -16,7 +16,9 @@ local Scene Scene = {
         transitionTime = 0,
         transitionCells = {},
 
-
+        loadingTransitionPos = 1,
+        loadingTransitionSpeed = 2,
+        loadingIn = true,
 
         --- methods
         destroy = function(self)
@@ -58,6 +60,8 @@ local Scene Scene = {
                 for i, v in ipairs(self.transitionCells) do
                    love.graphics.rectangle("fill", width/10*i, height, -width/10, -v[2]*height*1.1) 
                 end
+
+                love.graphics.rectangle("fill", 0, 0, width, height*self.loadingTransitionPos)
             gpop()
         end,
 
@@ -75,8 +79,16 @@ local Scene Scene = {
                 end
                 if self.transitionTime > 2 then
                     local oldScene = _G.activeScene
-                    _G.activeScene = Classes[self.transitionGoal].new()
+                    _G.activeScene = Classes[self.transitionGoal].new{flag = self.goalFlag}
                     oldScene:destroy()
+                end
+            end
+            if self.loadingIn then
+                self.loadingTransitionPos = self.loadingTransitionPos - self.loadingTransitionSpeed * dt
+                self.loadingTransitionSpeed = self.loadingTransitionSpeed - 2*dt
+
+                if self.loadingTransitionPos <= 0 then
+                    self.loadingIn = false
                 end
             end
 
@@ -110,14 +122,16 @@ local Scene Scene = {
             self.optionsButton.sx = height/5
             self.optionsButton.sy = height/5
             if self.optionsButton:getClick() and not self.inTransition then
-                self.clickSound:play()
+                Asset.sound.menu_click:play()
                 Settings.justOpened = true
                 Settings.toggle()
             end
 
             if self.startButton:getClick() and not self.inTransition then
                 self.inTransition = true
+                Asset.sound.menu_click:play()
                 self.transitionGoal = "MapSelectScene"
+                self.goalFlag = "PLAY"
             end
             self.startButton.goalSize = self.startButton:getHover() and 1.1 or 1
             self.startButton.currentSize = self.startButton:getClick() and 0.9 or self.startButton.currentSize
@@ -127,6 +141,12 @@ local Scene Scene = {
             self.startButton.sx = height/5
             self.startButton.sy = height/5
 
+            if self.editButton:getClick() and not self.inTransition then
+                self.inTransition = true
+                Asset.sound.menu_click:play()
+                self.transitionGoal = "MapSelectScene"
+                self.goalFlag = "EDIT"
+            end
             self.editButton.goalSize = self.editButton:getHover() and 1.1 or 1
             self.editButton.currentSize = self.editButton:getClick() and 0.9 or self.editButton.currentSize
             self.editButton:update(dt)
@@ -166,6 +186,13 @@ local function loadAssets()
 
     }) do
         asset.loadImage(path)
+    end
+
+    for _, path in ipairs({
+        "soundpath/menu_hover.ogg",
+        "soundpath/menu_click.ogg"
+    }) do
+        asset.loadSound(path, "static")
     end
 end
 

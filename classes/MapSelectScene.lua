@@ -74,7 +74,7 @@ local Scene Scene = {
             ))
 
 
-            local color = (math.random(1,10)/10-0.5)/3
+            local color = ((self.tileFrequency-self.currentTilePos)/self.tileFrequency-0.5)/3
             self.backgroundTiles[#self.backgroundTiles+1] = {self.currentTilePos/self.tileFrequency, 1.5, 1, 1, 0, -0.5, 0, 0.085, 50/255+color,30/255+color,102/255+color}
             self.currentTilePos = (self.currentTilePos + 3) % (self.tileFrequency+1)
             
@@ -138,6 +138,14 @@ local Scene Scene = {
             
 
             self.loadedSelection = self.selectedSong
+        end,
+
+        transition = function(self, goal)
+            Asset.sound.map_click:play()
+            self.inTransition = true
+            self.transitionGoal = goal
+            self.loadedSong:stop()
+            print("start game")
         end,
 
         draw = function(self)
@@ -210,18 +218,13 @@ local Scene Scene = {
                         button.sx, button.sy = height/5*3, height/5
                         button.x = ofx
                         button.y = ofy + button.sy*(i-1) - button.sy*(self.selectedSongTween-1)
-                        button:draw(self.pulseSize)
+                        button:draw(self)
                     end
                 end
                 setColor(1,1,1,1)
                 draw(asset.image.map_select_song_top, ofx, ofy - height/5*(self.selectedSongTween), 0, height/5*3, height/5)
             gpop(); gpush()
                 setColor(1,1,1,1)
-                --draw(asset.image.map_select_filter_box, width/2-height/2, 0, 0, height*.6, height*.2)
-                
-                for i, v in ipairs(self.mapList[self.selectedSong].maps[self.selectedDifficulty]) do
-                    --print(i, v)
-                end
 
                 -- draw map info
                 local durationString = self.loadedSong and generateTimestamp(self.mapList[self.selectedSong].maps[self.selectedDifficulty][10]-self.mapList[self.selectedSong].maps[self.selectedDifficulty][9], false, true) or "??:??"
@@ -241,13 +244,18 @@ local Scene Scene = {
                 gprint(numNotes..(numNotes==1 and" move | " or " moves | ")..numDrops..(numDrops==1 and" drop" or " drops"), width/2+height*0.115, height*.9, 0, nil, height*.025, 0, 0)
             gpop(); gpush()
                 setColor(204/255,215/255,1,1)
-                gprint("["..self.mapList[self.selectedSong].maps[self.selectedDifficulty][2].."]", width/2+height*0.115, height*.62, 0, nil, height*.05, 0, 0)
+                gprint(""..self.mapList[self.selectedSong].maps[self.selectedDifficulty][2].."", width/2+height*0.115, height*.62, 0, nil, height*.05, 0, 0)
                 gprint("Song by "..self.mapList[self.selectedSong].artist, width/2+height*0.115, height*.725, 0, nil, height*.025, 0, 0)
                 gprint("Map by "..self.mapList[self.selectedSong].maps[self.selectedDifficulty][3], width/2+height*0.115, height*.75, 0, nil, height*.025, 0, 0)
             gpop(); gpush()
+                self.exitButton.x, self.exitButton.y = width/2+height*0.15, height*0.55
+                self.exitButton.sx, self.exitButton.sy = height*0.08, height*0.08
+                self.exitButton:draw()
+                gprint("EXIT", self.exitButton.x+self.exitButton.sx/6 + (self.exitButton.currentSize-1)*40, self.exitButton.y+self.exitButton.sy*0.4, 0, nil, height*.04, 0, 0.5)
+            gpop(); gpush()
                 setColor(0,0,0,1)
                 for i, v in ipairs(self.transitionCells) do
-                   love.graphics.rectangle("fill", width/10*i, height, -width/10, -v[2]) 
+                   love.graphics.rectangle("fill", width/10*i, height, -width/10, -v[2]*height*1.1) 
                 end
 
                 love.graphics.rectangle("fill", 0, 0, width, height*self.loadingTransitionPos)
@@ -255,14 +263,47 @@ local Scene Scene = {
         end,
 
         update = function(self, dt)
+
+            if self.inTransition then
+                self.transitionTime = self.transitionTime + dt*2
+                local dampening = 12/dt/40
+
+                for i, v in ipairs(self.transitionCells) do
+                    if self.transitionTime >= i/15 then
+    
+                        v[2] = (v[2]*dampening + 1)/(dampening+1)
+
+                    end
+                end
+                if self.transitionTime > 2 then
+                    local oldScene = _G.activeScene
+                    _G.activeScene = Classes[self.transitionGoal].new{}
+                    oldScene:destroy()
+                end
+            end
+
             local dampening = 3/dt/40 -- used for tweens
+
+
+            if self.exitButton:getHover() then
+                self.exitButton.goalSize = 1.1
+                if Mouse.clicked then
+                    self.exitButton.currentSize = 0.8
+                    self:transition("StartMenuScene")
+                end
+            else
+                self.exitButton.goalSize = 1
+            end
+
+            self.exitButton:update(dt)
+
 
             if self.loadedSong then
                 self.adjustedSongTime = self.loadedSong:tell()
             end
 
             -- check inputs
-            if math.abs(Mouse.scrollDirection) > 0 and not (Settings.active) then
+            if math.abs(Mouse.scrollDirection) > 0 and not (Settings.active) and not self.inTransition then
                 self.timeSinceSelectionChanged = 0
                 if Mouse.x < dimensions[1]/2 + dimensions[2]/10 then
                     self.selectedSong = self.selectedSong + Mouse.scrollDirection
@@ -272,18 +313,25 @@ local Scene Scene = {
                 Asset.sound.menu_hover:play()
             end
 
-            if self.mapList[self.selectedSong] and self.mapList[self.selectedSong]:getClick() then
-                Asset.sound.map_click:play()
-                print("start game")
+            if Keyboard.justPressed["escape"] and not Settings.active and not self.inTransition then
+                self:transition("StartMenuScene")
             end
 
+            ----------------
+
+            if self.mapList[self.selectedSong] and self.mapList[self.selectedSong]:getClick() and not self.inTransition then
+                self:transition("GameScene")
+            end
+
+            -- canvas tiles
             for i, tile in pairs(self.backgroundTiles) do
-                tile[1] = tile[1] + tile[5] * dt/2 -- vx 
-                tile[2] = tile[2] + tile[6] * dt/2 -- vy
-                tile[3] = tile[3] + tile[4] * dt/2
-                tile[4] = tile[4] - 0.5 * dt/2
-                tile[5] = tile[5] + tile[7] * dt/2 -- ax
-                tile[6] = tile[6] + tile[8] * dt/2 -- ay
+                local wdt = dt/2
+                tile[1] = tile[1] + tile[5] * wdt -- vx 
+                tile[2] = tile[2] + tile[6] * wdt -- vy
+                tile[3] = tile[3] + tile[4] * wdt
+                tile[4] = tile[4] - 0.5 * wdt
+                tile[5] = tile[5] + tile[7] * wdt -- ax
+                tile[6] = tile[6] + tile[8] * wdt -- ay
                 
                 if tile[3]<0 then
                     self.backgroundTiles[i] = nil
@@ -305,10 +353,10 @@ local Scene Scene = {
                     button.thumbnail = love.graphics.newImage(thumbnailPath)
                 end
 
-                if button then
+                if button and not self.inTransition then
                     local hover = button:getHover()
                     
-                    if hover ~= button.isHovered then
+                    if hover ~= button.isHovered and not Settings.active then
                         Asset.sound.menu_hover:play()
                         button.isHovered = hover
                     end
@@ -321,6 +369,7 @@ local Scene Scene = {
                         button.glow = .75
                         if button:getClick() then
                             self.selectedSong = i
+                            Asset.sound.menu_click:play()
                         end
                     end
                 end
@@ -338,7 +387,7 @@ local Scene Scene = {
                 self:updateMapPreview()
             end
 
-            if self.loadedSong and not self.loadedSong:isPlaying() then
+            if self.loadedSong and not self.loadedSong:isPlaying() and not self.inTransition then
                 self:updateMapPreview()
             end
 
@@ -382,16 +431,6 @@ local Scene Scene = {
             self.pulseSize = (self.pulseSize*dampening + 1)/(dampening+1)
             self.bgScale = (self.bgScale*dampening*8 + 1.0075)/(dampening*8+1)
 
-            if self.inTransition then
-                self.transitionTime = self.transitionTime + dt
-                for i, v in ipairs(self.transitionCells) do
-                    if self.transitionTime >= i/15 then
-                        v[1] = v[1] + dt*16
-                        v[2] = v[2] + v[1] * love.graphics.getHeight() / 600
-                    end
-                end
-            end
-
             self.timeSinceSelectionChanged = self.timeSinceSelectionChanged + dt
 
             if self.loadingIn then
@@ -431,21 +470,23 @@ local function loadAssets()
         "skinpath/map_select/map_select_wheel_highlight.png",
         "skinpath/map_select/map_select_star_icon.png",
         "skinpath/map_select/map_select_background_glow.png",
-        "skinpath/map_select/map_select_background_sparkle.png"
+        "skinpath/map_select/map_select_background_sparkle.png",
+        "skinpath/map_select/map_select_exit.png"
     }) do
         asset.loadImage(path)
     end
 
     for _, path in ipairs({
-        "assets/sounds/default/menu_hover.ogg",
-        "assets/sounds/default/map_click.ogg"
+        "soundpath/menu_hover.ogg",
+        "soundpath/map_click.ogg",
+        "soundpath/menu_click.ogg"
     }) do
         asset.loadSound(path)
     end
     
 end
 
-local function customDraw(self, pulseSize)
+local function customDraw(self, parent)
     local width, height = dimensions[1], dimensions[2]
     gpush()
         setColor(1,1,1,1)
@@ -466,15 +507,20 @@ local function customDraw(self, pulseSize)
     gpop(); gpush()
         if self.thumbnail then
             setColor(self.glow,self.glow,self.glow,1)
-            local sy = self.sy*self.currentSize*0.7
+            local add = parent.mapList[parent.selectedSong] == self and height/15*(1-parent.pulseSize) or 0
+            local sy = self.sy*self.currentSize*0.7 - add
             local sx = sy
-            draw(self.thumbnail, self.x + (self.sx*self.currentSize) - (self.sx*self.currentSize/20), self.y + (self.sy*self.currentSize) - (self.sx*self.currentSize/20), 0, sx, sy, 1, 1)
+            draw(self.thumbnail, self.x + (self.sx*self.currentSize) - (self.sx*self.currentSize/6), self.y + (self.sy*self.currentSize) - (self.sx*self.currentSize/6), 0, sx, sy, 0.5, 0.5)
         end
     gpop()
 end
 
 -- Constructor for editor scene objects
-function Scene.new()
+function Scene.new(params)
+    params = params or {}
+
+    print(params.flag)
+
     local newScene = setmetatable({}, Scene)
     
     -- add the scene to the current list
@@ -495,6 +541,7 @@ function Scene.new()
     newScene.backgroundCanvas = love.graphics.newCanvas(648, 1080)
     newScene.backgroundTiles = {}
 
+    newScene.exitButton = Classes.gui_GuiElement.newButton(Asset.image.map_select_exit, 0, 0, 0, 0, 0.5, 0.5)
 
 
     local getWidth = _G.getTextWidth

@@ -1,4 +1,6 @@
 -- source2 must live in libs to benefit from updating before the game
+local settings
+local clamp = math.clamp
 local Source2 = {
     instances = setmetatable({}, {__mode="kv"}),
 
@@ -31,7 +33,6 @@ local Source2 = {
         end,
 
         play = function(self)
-            print("a")
             self.realSource:stop()
             self.realSource:play()
         end,
@@ -56,11 +57,11 @@ local Source2 = {
 
         setVolume = function(self, v)
             self.realVolume = v
+            self.realSource:setVolume(clamp(self.realVolume * settings.data.masterVolume * (self.isSong and settings.data.musicVolume or settings.data.sfxVolume), 0, 2))
         end   
     }
 }
 
-local settings
 function Source2.update(dt)
     settings = settings or Settings
     for _, sound in pairs(Source2.instances) do
@@ -78,7 +79,7 @@ function Source2.update(dt)
             sound.rawTime = rt
             sound.adjustedTime = rt + sound.midSampleTime
             
-            sound.realSource:setVolume(sound.realVolume * settings.data.masterVolume * (sound.isSong and settings.data.musicVolume or settings.data.sfxVolume))
+            sound.realSource:setVolume(sound.realVolume * settings.data.masterVolume * (sound.isSong and settings.data.musicVolume or settings.data.sfxVolume) - settings.xPosition/3)
         end
     end
 end
