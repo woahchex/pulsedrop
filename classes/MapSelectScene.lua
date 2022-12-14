@@ -96,7 +96,7 @@ local Scene Scene = {
             end
             
 
-            hat:play()
+            --hat:play()
         end,
 
         updateMapPreview = function(self)
@@ -269,9 +269,11 @@ local Scene Scene = {
                 else
                     self.selectedDifficulty = self.selectedDifficulty + Mouse.scrollDirection
                 end
+                Asset.sound.menu_hover:play()
             end
 
             if self.mapList[self.selectedSong] and self.mapList[self.selectedSong]:getClick() then
+                Asset.sound.map_click:play()
                 print("start game")
             end
 
@@ -305,6 +307,14 @@ local Scene Scene = {
 
                 if button then
                     local hover = button:getHover()
+                    
+                    if hover ~= button.isHovered then
+                        Asset.sound.menu_hover:play()
+                        button.isHovered = hover
+                    end
+
+                    
+
                     if i ~= self.selectedSong and not hover then
                         button.glow = 0.5
                     elseif hover then
@@ -425,6 +435,14 @@ local function loadAssets()
     }) do
         asset.loadImage(path)
     end
+
+    for _, path in ipairs({
+        "assets/sounds/default/menu_hover.ogg",
+        "assets/sounds/default/map_click.ogg"
+    }) do
+        asset.loadSound(path)
+    end
+    
 end
 
 local function customDraw(self, pulseSize)
@@ -449,7 +467,7 @@ local function customDraw(self, pulseSize)
         if self.thumbnail then
             setColor(self.glow,self.glow,self.glow,1)
             local sy = self.sy*self.currentSize*0.7
-            local sx = sy*4/3
+            local sx = sy
             draw(self.thumbnail, self.x + (self.sx*self.currentSize) - (self.sx*self.currentSize/20), self.y + (self.sy*self.currentSize) - (self.sx*self.currentSize/20), 0, sx, sy, 1, 1)
         end
     gpop()
@@ -476,6 +494,8 @@ function Scene.new()
 
     newScene.backgroundCanvas = love.graphics.newCanvas(648, 1080)
     newScene.backgroundTiles = {}
+
+
 
     local getWidth = _G.getTextWidth
     local height = _G.getTextHeight()

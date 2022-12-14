@@ -19,8 +19,8 @@ function IO.lines( name )
     return love.filesystem.lines( name )
 end
 
-local CANVASRATIO = 3/4
-local thumbCanvas = love.graphics.newCanvas(120,90)
+local CANVASRATIO = 4/4
+local thumbCanvas = love.graphics.newCanvas(120,120)
 
 function IO.createThumbnail( imagePath, thumbnailPath )
     love.graphics.setCanvas(thumbCanvas)
@@ -33,11 +33,11 @@ function IO.createThumbnail( imagePath, thumbnailPath )
     local iRatio = iWidth/iHeight
     
     local scaleByWidth = false
-    if iRatio > CANVASRATIO then
+    if iRatio >= CANVASRATIO then
         scaleByWidth = true
     end
 
-    drawImage(imageBackground, 60, 45, 0, (not scaleByWidth and 120 or 90*iRatio), (not scaleByWidth and 120/iRatio or 90), 0.5, 0.5)
+    drawImage(imageBackground, 60, 60, 0, (not scaleByWidth and 120 or 120*iRatio), (not scaleByWidth and 120/iRatio or 120), 0.5, 0.5)
     love.graphics.pop()
     love.graphics.setCanvas()
 

@@ -31,6 +31,8 @@ local Source2 = {
         end,
 
         play = function(self)
+            print("a")
+            self.realSource:stop()
             self.realSource:play()
         end,
 

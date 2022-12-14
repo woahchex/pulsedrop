@@ -110,6 +110,7 @@ local Scene Scene = {
             self.optionsButton.sx = height/5
             self.optionsButton.sy = height/5
             if self.optionsButton:getClick() and not self.inTransition then
+                self.clickSound:play()
                 Settings.justOpened = true
                 Settings.toggle()
             end
@@ -211,6 +212,9 @@ function Scene.new()
         newScene.optionsButton.rotation = 0
         newScene.optionsButton.text = "SETTINGS"
     newScene.logo = Classes.gui_Logo.new()
+
+    newScene.clickSound = Libs.Source2.new("assets/sounds/default/menu_click.ogg", "static")
+    
 
     newScene.transitionCells = {{0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}}
 

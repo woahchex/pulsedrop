@@ -36,7 +36,7 @@ function love.load()
         "game/Song",
         "gui/GuiElement", "gui/Logo", "gui/Particle"
     }
-    local libs = {"IO", "Mouse", "Keyboard", "Gamepad", "Asset", "Tetris", "Settings", "Source2"}
+    local libs = {"IO", "Mouse", "Keyboard", "Gamepad", "Source2", "Settings", "Asset", "Tetris"}
 
 
     for _, lib in ipairs(libs) do
@@ -106,7 +106,9 @@ function love.run()
 
         if love.update then love.update(dt) end -- will pass 0 if love.timer is disabled
 
-		if love.timer then love.timer.sleep(0.00) end
+        local settings = Settings or {data={}}
+
+		if love.timer then love.timer.sleep(settings.data.isFocused and 1/1000 or 1/30) end
 	end
 end
 
@@ -149,6 +151,7 @@ end
 function love.update(dt)
     fps = 1/dt
     if dt > .5 then return end
+    dt = dt * 5
     local postUpdateList = {}
     -- Make sure every class which has an update function updates
     for name, lib in pairs(Libs) do
@@ -175,4 +178,10 @@ function love.update(dt)
     end
 
     
+end
+
+function love.focus( focus )
+    if Settings then
+        Settings.data.isFocused = focus
+    end
 end

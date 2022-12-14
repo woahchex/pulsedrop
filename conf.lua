@@ -8,7 +8,7 @@ function love.conf(t)
     t.audio.mixwithsystem = true        -- Keep background music playing when opening LOVE (boolean, iOS and Android only)
 
     t.window.title = "PROJECT_PD"       -- The window title (string)
-    t.window.icon = nil                 -- Filepath to an image to use as the window's icon (string)
+    t.window.icon = "assets/constant/icon.png"
     t.window.width = 600                -- The window width (number)
     t.window.height = 600               -- The window height (number)
     t.window.resizable = true          -- Let the window be user-resizable (boolean)
