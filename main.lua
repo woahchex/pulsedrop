@@ -108,7 +108,7 @@ function love.run()
 
         local settings = Settings or {data={}}
 
-		if love.timer then love.timer.sleep(settings.data.isFocused and 0 or 1/30) end
+		if love.timer then love.timer.sleep(settings.data.isFocused and 0.001 or 1/30) end
 	end
 end
 

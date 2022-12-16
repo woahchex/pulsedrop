@@ -106,7 +106,7 @@ local Scene Scene = {
                 self.loadedSong:stop()
             end
 
-            self.loadedSong = Libs.Source2.new("maps/" .. selectedSong.folder .. "/" .. selectedSong.songPath, "stream")
+            self.loadedSong = (self.mode == "PLAY" or self.selectedSong > 1) and Libs.Source2.new("maps/" .. selectedSong.folder .. "/" .. selectedSong.songPath, "stream") or Asset.sound.silent
             self.loadedSong:seek(selectedSong.previewTime)
             self.adjustedSongTime = selectedSong.previewTime
             self.loadedSongVolume = 0
@@ -116,7 +116,12 @@ local Scene Scene = {
             
             self.songTitleHolder.progress = 0
 
-            self.loadedBackground = love.graphics.newImage("maps/" .. selectedSong.folder .. "/" .. selectedSong.bgPath)
+            if self.selectedSong == 1 and self.mode == "EDIT" then
+                self.loadedSong:setPitch(0.000001)
+                self.loadedBackground = Asset.image.empty
+            else
+                self.loadedBackground = love.graphics.newImage("maps/" .. selectedSong.folder .. "/" .. selectedSong.bgPath)
+            end
 
             if not selectedSong.bpmTracker then
                 selectedSong.bpmTracker = {{0,1}}
@@ -226,27 +231,31 @@ local Scene Scene = {
             gpop(); gpush()
                 setColor(1,1,1,1)
 
+                local durationString
                 -- draw map info
-                local durationString = self.loadedSong and generateTimestamp(self.mapList[self.selectedSong].maps[self.selectedDifficulty][10]-self.mapList[self.selectedSong].maps[self.selectedDifficulty][9], false, true) or "??:??"
-                
-                self.songTitleHolder.text = self.mapList[self.selectedSong].songName
-                self.songTitleHolder.x, self.songTitleHolder.y = width/2+height*0.115, height*.675
-                self.songTitleHolder.sy = height*0.035
-                self.songTitleHolder.sx = self.songTitleHolder.sy * 10
-                self.songTitleHolder:draw()
-                --gprint(self.mapList[self.selectedSong].songName, width/2+height*0.115, height*.675, 0, nil, height*.035, 0, 0)
-                gprint("Duration: ".. durationString, width/2+height*0.115, height*.8, 0, nil, height*.025, 0, 0)
-                gprint("Approach Rate: "..(math.floor(self.mapList[self.selectedSong].maps[self.selectedDifficulty][5])).." sec", width/2+height*0.115, height*.825, 0, nil, height*.025, 0, 0)
-                gprint("Timing Pity: "..(math.floor(self.mapList[self.selectedSong].maps[self.selectedDifficulty][4]*100)).."%", width/2+height*0.115, height*.85, 0, nil, height*.025, 0, 0)
-                gprint("HP Drain: "..(math.floor(self.mapList[self.selectedSong].maps[self.selectedDifficulty][5]*100)).."%", width/2+height*0.115, height*.875, 0, nil, height*.025, 0, 0)
-                local numNotes = self.mapList[self.selectedSong].maps[self.selectedDifficulty][8]
-                local numDrops = self.mapList[self.selectedSong].maps[self.selectedDifficulty][7]
-                gprint(numNotes..(numNotes==1 and" move | " or " moves | ")..numDrops..(numDrops==1 and" drop" or " drops"), width/2+height*0.115, height*.9, 0, nil, height*.025, 0, 0)
-            gpop(); gpush()
-                setColor(204/255,215/255,1,1)
-                gprint(""..self.mapList[self.selectedSong].maps[self.selectedDifficulty][2].."", width/2+height*0.115, height*.62, 0, nil, height*.05, 0, 0)
-                gprint("Song by "..self.mapList[self.selectedSong].artist, width/2+height*0.115, height*.725, 0, nil, height*.025, 0, 0)
-                gprint("Map by "..self.mapList[self.selectedSong].maps[self.selectedDifficulty][3], width/2+height*0.115, height*.75, 0, nil, height*.025, 0, 0)
+                if self.mode == "PLAY" or self.selectedSong > 1 then
+                    durationString = (self.loadedSong) and generateTimestamp(self.mapList[self.selectedSong].maps[self.selectedDifficulty][10]-self.mapList[self.selectedSong].maps[self.selectedDifficulty][9], false, true) or "??:??"
+                    self.songTitleHolder.text = self.mapList[self.selectedSong].songName
+                    self.songTitleHolder.x, self.songTitleHolder.y = width/2+height*0.115, height*.675
+                    self.songTitleHolder.sy = height*0.035
+                    self.songTitleHolder.sx = self.songTitleHolder.sy * 10
+                    self.songTitleHolder:draw()
+                    --gprint(self.mapList[self.selectedSong].songName, width/2+height*0.115, height*.675, 0, nil, height*.035, 0, 0)
+                    gprint("Duration: ".. durationString, width/2+height*0.115, height*.8, 0, nil, height*.025, 0, 0)
+                    gprint("Approach Rate: "..(math.floor(self.mapList[self.selectedSong].maps[self.selectedDifficulty][5])).." sec", width/2+height*0.115, height*.825, 0, nil, height*.025, 0, 0)
+                    gprint("Timing Pity: "..(math.floor(self.mapList[self.selectedSong].maps[self.selectedDifficulty][4]*100)).."%", width/2+height*0.115, height*.85, 0, nil, height*.025, 0, 0)
+                    gprint("HP Drain: "..(math.floor(self.mapList[self.selectedSong].maps[self.selectedDifficulty][5]*100)).."%", width/2+height*0.115, height*.875, 0, nil, height*.025, 0, 0)
+                    local numNotes = self.mapList[self.selectedSong].maps[self.selectedDifficulty][8]
+                    local numDrops = self.mapList[self.selectedSong].maps[self.selectedDifficulty][7]
+                    gprint(numNotes..(numNotes==1 and" move | " or " moves | ")..numDrops..(numDrops==1 and" drop" or " drops"), width/2+height*0.115, height*.9, 0, nil, height*.025, 0, 0)
+                gpop(); gpush()
+                    setColor(204/255,215/255,1,1)
+                    gprint(""..self.mapList[self.selectedSong].maps[self.selectedDifficulty][2].."", width/2+height*0.115, height*.62, 0, nil, height*.05, 0, 0)
+                    gprint("Song by "..self.mapList[self.selectedSong].artist, width/2+height*0.115, height*.725, 0, nil, height*.025, 0, 0)
+                    gprint("Map by "..self.mapList[self.selectedSong].maps[self.selectedDifficulty][3], width/2+height*0.115, height*.75, 0, nil, height*.025, 0, 0)
+                    
+                end
+
             gpop(); gpush()
                 self.exitButton.x, self.exitButton.y = width/2+height*0.15, height*0.55
                 self.exitButton.sx, self.exitButton.sy = height*0.08, height*0.08
@@ -342,7 +351,7 @@ local Scene Scene = {
                 local button = self.mapList[i]
 
                 -- get the thumbnail if it's not loaded
-                if not button.thumbnail then
+                if not (button.thumbnail or button.isEditorButton) then
                     local thumbnailPath = "maps/"..button.folder.."/thumbnail.png"
                     local bgPath = "maps/"..button.folder.."/"..button.bgPath
                     if not love.filesystem.getInfo(thumbnailPath) then
@@ -351,6 +360,8 @@ local Scene Scene = {
                     end
 
                     button.thumbnail = love.graphics.newImage(thumbnailPath)
+                elseif not button.thumbnail and button.isEditorButton then
+                    button.thumbnail = Asset.image.map_select_editor_button
                 end
 
                 if button and not self.inTransition then
@@ -471,7 +482,8 @@ local function loadAssets()
         "skinpath/map_select/map_select_star_icon.png",
         "skinpath/map_select/map_select_background_glow.png",
         "skinpath/map_select/map_select_background_sparkle.png",
-        "skinpath/map_select/map_select_exit.png"
+        "skinpath/map_select/map_select_exit.png",
+        "skinpath/map_select/map_select_editor_button.png"
     }) do
         asset.loadImage(path)
     end
@@ -496,8 +508,10 @@ local function customDraw(self, parent)
         setColor(1,1,1,0.5)
         gprint("   " .. (self.artist or "") .. "", self.x + (self.sx*self.currentSize/20), self.y + (self.sx*self.currentSize/8), 0, nil, self.sy*self.currentSize*0.125)
     gpop(); gpush()
-        setColor(1, 1, 1, 0.2)
-        gprint("#" .. tostring(self.songId), self.x + (self.sx*self.currentSize) - (self.sx*self.currentSize/2.3), self.y + (self.sy*self.currentSize) - (self.sx*self.currentSize/20), 0, nil, self.sy*self.currentSize/5, 1, 1)
+        if self.mode == "PLAY" or not self.isEditorButton then
+            setColor(1, 1, 1, 0.2)
+            gprint("#" .. tostring(self.songId), self.x + (self.sx*self.currentSize) - (self.sx*self.currentSize/2.3), self.y + (self.sy*self.currentSize) - (self.sx*self.currentSize/20), 0, nil, self.sy*self.currentSize/5, 1, 1)
+        end
     gpop(); gpush()
         setColor(1,1,1, self.glow)
         draw(self.glowImage, self.x, self.y, 0, self.sx*self.currentSize, self.sy*self.currentSize, self.ox, self.oy)        
@@ -510,7 +524,7 @@ local function customDraw(self, parent)
             local add = parent.mapList[parent.selectedSong] == self and height/15*(1-parent.pulseSize) or 0
             local sy = self.sy*self.currentSize*0.7 - add
             local sx = sy
-            draw(self.thumbnail, self.x + (self.sx*self.currentSize) - (self.sx*self.currentSize/6), self.y + (self.sy*self.currentSize) - (self.sx*self.currentSize/6), 0, sx, sy, 0.5, 0.5)
+            draw(self.thumbnail, self.x + (self.sx*self.currentSize) - (self.sx*self.currentSize/6), self.y + (self.sy*self.currentSize) - (self.sx*self.currentSize/6), 0, sx, sy, 0.5, 0.5, 0, 0, true)
         end
     gpop()
 end
@@ -519,7 +533,7 @@ end
 function Scene.new(params)
     params = params or {}
 
-    print(params.flag)
+    
 
     local newScene = setmetatable({}, Scene)
     
@@ -531,9 +545,9 @@ function Scene.new(params)
     loadAssets()
 
     newScene.transitionCells = {{0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}, {0,0}}
-    newScene.mapList = IO.getSongs( customDraw, asset.image.map_select_song_bg, asset.image.map_select_song_glow ) -- KEEP THIS LINE
+    newScene.mapList = IO.getSongs( customDraw, asset.image.map_select_song_bg, asset.image.map_select_song_glow, params.flag ) -- KEEP THIS LINE
     newScene.loadedBackground = asset.image.main_menu_default_background
-    newScene.selectedSong = math.random(1, #newScene.mapList)
+    newScene.selectedSong = params.flag == "EDIT" and 1 or math.random(1, #newScene.mapList)
     newScene.particleLayer1 = Classes.gui_Particle.newContainer()
     newScene.songTitleHolder = Classes.gui_GuiElement.newScrollingText(".", 0, 0, 10, 1)
     newScene.songTitleHolder.alwaysActive = true
@@ -542,7 +556,7 @@ function Scene.new(params)
     newScene.backgroundTiles = {}
 
     newScene.exitButton = Classes.gui_GuiElement.newButton(Asset.image.map_select_exit, 0, 0, 0, 0, 0.5, 0.5)
-
+    newScene.mode = params.flag
 
     local getWidth = _G.getTextWidth
     local height = _G.getTextHeight()

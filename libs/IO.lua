@@ -45,7 +45,8 @@ function IO.createThumbnail( imagePath, thumbnailPath )
     thumbCanvas:newImageData():encode("png", thumbnailPath)
 end
 
-function IO.getSongs(customDraw, bg, glow)
+function IO.getSongs(customDraw, bg, glow, isEditor)
+    isEditor = isEditor == "EDIT"
     local baseDirectory = "maps"
 
     -- first, get the map cache
@@ -64,6 +65,26 @@ function IO.getSongs(customDraw, bg, glow)
 
     local line = iterator()
     local idChecks = {}
+
+    if isEditor then
+        local button = Classes.gui_GuiElement.newButton(bg)
+            button.isEditorButton = true
+            button.draw = customDraw
+            button.glow = 0.5; button.glowImage = glow
+            button.songId = -1
+            button.songName = "New Beatmap"
+            button.artist = "Start with an audio file"
+            button.folder = nil
+            button.songPath = nil
+            button.bgPath = nil
+            button.previewTime = 0
+            button.path = "maps/"     
+            button.maps = {
+                {0, "New map", 0, 0, 0, 0, 0, 0, 0, 0}
+            }
+            button.bpmEvents = {0,0}
+            maps[1] = button
+    end
 
     while line do
         if line == "" then break end
@@ -107,6 +128,10 @@ function IO.getSongs(customDraw, bg, glow)
                 }
                 
             end
+
+        if isEditor then
+            button.maps[#button.maps+1] = {0, "New map", 0, 0, 0, 0, 0, 0, 0, 0}
+        end
 
         maps[#maps+1] = button
         
